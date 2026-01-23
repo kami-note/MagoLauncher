@@ -19,7 +19,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private string _statusMessage = "Pronto para jogar";
 
     [ObservableProperty]
-    private MinecraftInstance? _selectedInstance;
+    private ViewModelBase _currentPage;
 
     [ObservableProperty]
     private bool _isLoading;
@@ -27,19 +27,20 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private string _playerName = "MagoPlayer";
 
-    [ObservableProperty]
-    private int _maxRamMb = 4096;
-
-    // RAM options for the dropdown
-    public int[] RamOptions { get; } = [2048, 4096, 6144, 8192, 12288, 16384];
-
     public ObservableCollection<MinecraftInstance> Instances { get; } = [];
 
     private readonly MagoLauncher.Application.Services.IMinecraftInstanceService _instanceService;
+    private readonly HomeViewModel _homePage;
+    private readonly SettingsViewModel _settingsPage;
 
     public MainWindowViewModel(MagoLauncher.Application.Services.IMinecraftInstanceService instanceService)
     {
         _instanceService = instanceService;
+
+        _homePage = new HomeViewModel(Instances);
+        _settingsPage = new SettingsViewModel();
+        _currentPage = _homePage;
+
         Initialize();
     }
 
@@ -47,6 +48,15 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         // Constructor for design-time preview
         _instanceService = null!;
+        _homePage = new HomeViewModel(Instances);
+        _settingsPage = new SettingsViewModel();
+        _currentPage = _homePage;
+    }
+
+    public MinecraftInstance? SelectedInstance
+    {
+        get => _homePage.SelectedInstance;
+        set => _homePage.SelectedInstance = value;
     }
 
     private async void Initialize()
@@ -71,6 +81,12 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private void GoToHome() => CurrentPage = _homePage;
+
+    [RelayCommand]
+    private void GoToSettings() => CurrentPage = _settingsPage;
+
+    [RelayCommand]
     private async Task LaunchGame()
     {
         if (SelectedInstance == null) return;
@@ -81,7 +97,7 @@ public partial class MainWindowViewModel : ViewModelBase
         // Launch functionality
         try
         {
-            await _instanceService.LaunchInstanceAsync(SelectedInstance, PlayerName, MaxRamMb);
+            await _instanceService.LaunchInstanceAsync(SelectedInstance, PlayerName, _settingsPage.MaxRamMb);
             StatusMessage = "Jogo iniciado com sucesso!";
         }
         catch (Exception ex)

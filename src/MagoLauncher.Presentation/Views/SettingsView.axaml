@@ -1,0 +1,57 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:MagoLauncher.Presentation.ViewModels"
+             xmlns:material="using:Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="MagoLauncher.Presentation.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+    
+    <Grid RowDefinitions="Auto, *" Margin="40,30">
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto, *" Margin="0,0,0,32">
+            <TextBlock Grid.Column="1" Text="Configurações do Launcher" 
+                       FontSize="28" FontWeight="Bold" Foreground="White" 
+                       VerticalAlignment="Center"/>
+        </Grid>
+
+        <!-- Settings Content -->
+        <ScrollViewer Grid.Row="1">
+            <StackPanel Spacing="24" MaxWidth="600" HorizontalAlignment="Left">
+                <!-- RAM Configuration Card -->
+                <Border Background="#27272a" CornerRadius="12" Padding="20" BorderBrush="#3f3f46" BorderThickness="1">
+                    <Grid ColumnDefinitions="Auto, *, Auto">
+                        <!-- Icon -->
+                        <Border Grid.Column="0" Width="48" Height="48" CornerRadius="10" Background="#3f3f46" Margin="0,0,16,0" VerticalAlignment="Top">
+                            <material:MaterialIcon Kind="Memory" Width="24" Height="24" Foreground="#8b5cf6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+
+                        <!-- Text Content -->
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+                            <TextBlock Text="Alocação de Memória RAM" FontSize="15" FontWeight="SemiBold" Foreground="White"/>
+                            <TextBlock Text="Define a quantidade máxima de memória que o Minecraft pode utilizar." 
+                                       FontSize="13" Foreground="#a1a1aa" TextWrapping="Wrap"/>
+                        </StackPanel>
+
+                        <!-- Control -->
+                        <ComboBox Grid.Column="2" ItemsSource="{Binding RamOptions}" 
+                                  SelectedItem="{Binding MaxRamMb}"
+                                  Background="#202022" Foreground="White" 
+                                  BorderThickness="1" BorderBrush="#3f3f46"
+                                  CornerRadius="6" Padding="12,6"
+                                  VerticalAlignment="Center" Margin="24,0,0,0" MinWidth="140">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding StringFormat='{}{0} MB'}" Foreground="White"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </Grid>
+                </Border>
+                
+                <!-- More settings can be added here later -->
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

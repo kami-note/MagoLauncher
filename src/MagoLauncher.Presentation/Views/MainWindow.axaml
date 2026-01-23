@@ -90,8 +90,24 @@
                          </StackPanel>
                     </StackPanel>
 
+                    <!-- Navigation -->
+                    <StackPanel Grid.Row="1" Spacing="4" Margin="0,0,0,20">
+                        <Button Command="{Binding GoToHomeCommand}" Classes="secondary" HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <material:MaterialIcon Kind="Home" Width="18" Height="18" Foreground="#8b5cf6"/>
+                                <TextBlock Text="Início" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding GoToSettingsCommand}" Classes="secondary" HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <material:MaterialIcon Kind="Settings" Width="18" Height="18" Foreground="#a1a1aa"/>
+                                <TextBlock Text="Configurações" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+
                     <!-- Navigation / Instances -->
-                    <DockPanel Grid.Row="1">
+                    <DockPanel Grid.Row="1" Margin="0,110,0,0">
                          <TextBlock DockPanel.Dock="Top" Text="MINHA COLEÇÃO" FontSize="10" FontWeight="Bold" Foreground="#52525b" Margin="4,0,0,12" LetterSpacing="1"/>
                          
                          <ListBox ItemsSource="{Binding Instances}" SelectedItem="{Binding SelectedInstance}" Background="Transparent">
@@ -124,60 +140,11 @@
 
             <!-- Main Content Area -->
             <Border Grid.Column="1" Background="#18181b">
-                <Grid RowDefinitions="Auto, *" Margin="40,30">
-                    <!-- Top Bar / Header -->
-                    <Grid Grid.Row="0" ColumnDefinitions="*, Auto">
-                        <StackPanel Spacing="4">
-                             <TextBlock Text="{Binding SelectedInstance.Name, FallbackValue='Mago Launcher'}" 
-                                       FontSize="28" FontWeight="Bold" Foreground="White"/>
-                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <Border Background="#27272a" CornerRadius="4" Padding="8,2">
-                                    <TextBlock Text="{Binding SelectedInstance.MinecraftVersion, StringFormat='Versão {0}', FallbackValue='Nenhuma instância selecionada'}" 
-                                               FontSize="12" Foreground="#a1a1aa"/>
-                                </Border>
-                             </StackPanel>
-                        </StackPanel>
-                    </Grid>
-
-                    <!-- Center Content Area -->
-                    <Grid Grid.Row="1">
-                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="32">
-                             <!-- Instance Hero Icon -->
-                             <Border Width="120" Height="120" CornerRadius="30" Background="#27272a" 
-                                     BoxShadow="0 10 30 0 #40000000" HorizontalAlignment="Center">
-                                 <material:MaterialIcon Kind="Controller" Width="56" Height="56" Foreground="#8b5cf6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                             </Border>
-                             
-                             <!-- Instance Info/Settings -->
-                             <Border Background="#27272a" CornerRadius="16" Padding="32,24" 
-                                     HorizontalAlignment="Center" MinWidth="400">
-                                 <StackPanel Spacing="20">
-                                     <TextBlock Text="CONFIGURAÇÕES DA INSTÂNCIA" FontSize="11" FontWeight="Bold" 
-                                                Foreground="#71717a" LetterSpacing="1"/>
-
-                                     <!-- RAM Selector -->
-                                     <StackPanel Spacing="8">
-                                         <StackPanel Orientation="Horizontal" Spacing="8">
-                                             <material:MaterialIcon Kind="Memory" Width="16" Height="16" Foreground="#a1a1aa"/>
-                                             <TextBlock Text="Alocação de Memória RAM" FontSize="13" Foreground="#d4d4d8"/>
-                                         </StackPanel>
-                                         <ComboBox ItemsSource="{Binding RamOptions}" 
-                                                   SelectedItem="{Binding MaxRamMb}"
-                                                   Background="#3f3f46" Foreground="White" 
-                                                   BorderThickness="0" CornerRadius="8" Padding="12,8"
-                                                   HorizontalAlignment="Stretch" FontSize="13">
-                                             <ComboBox.ItemTemplate>
-                                                 <DataTemplate>
-                                                     <TextBlock Text="{Binding StringFormat='{}{0} MB'}" Foreground="White"/>
-                                                 </DataTemplate>
-                                             </ComboBox.ItemTemplate>
-                                         </ComboBox>
-                                     </StackPanel>
-                                 </StackPanel>
-                             </Border>
-                         </StackPanel>
-                    </Grid>
-                </Grid>
+                <TransitioningContentControl Content="{Binding CurrentPage}">
+                    <TransitioningContentControl.PageTransition>
+                        <CrossFade Duration="0:0:0.2" />
+                    </TransitioningContentControl.PageTransition>
+                </TransitioningContentControl>
             </Border>
         </Grid>
 

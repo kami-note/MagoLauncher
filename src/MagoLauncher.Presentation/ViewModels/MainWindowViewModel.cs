@@ -4,6 +4,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MagoLauncher.Domain.Entities;
 using MagoLauncher.Domain.Enums;
+using MagoLauncher.Domain.Interfaces;
+
 
 namespace MagoLauncher.Presentation.ViewModels;
 
@@ -23,23 +25,36 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public ObservableCollection<MinecraftInstance> Instances { get; } = [];
 
+    private readonly IMinecraftVersionService _versionService;
+
+    public MainWindowViewModel(IMinecraftVersionService versionService)
+    {
+        _versionService = versionService;
+        Initialize();
+    }
+
     public MainWindowViewModel()
     {
-        // Adiciona instância de exemplo para demonstração
-        Instances.Add(new MinecraftInstance
-        {
-            Name = "Minecraft 1.20.4",
-            MinecraftVersion = "1.20.4",
-            ModLoaderType = ModLoaderType.Vanilla
-        });
+        // Constructor for design-time preview
+        _versionService = null!;
+    }
 
-        Instances.Add(new MinecraftInstance
+    private async void Initialize()
+    {
+        await LoadInstances();
+    }
+
+    private async Task LoadInstances()
+    {
+        if (_versionService == null) return;
+
+        Instances.Clear();
+        var versions = await _versionService.GetLocalVersionsAsync();
+
+        foreach (var version in versions)
         {
-            Name = "Modded 1.20.1",
-            MinecraftVersion = "1.20.1",
-            ModLoaderType = ModLoaderType.Fabric,
-            ModLoaderVersion = "0.15.0"
-        });
+            Instances.Add(version);
+        }
 
         if (Instances.Count > 0)
             SelectedInstance = Instances[0];

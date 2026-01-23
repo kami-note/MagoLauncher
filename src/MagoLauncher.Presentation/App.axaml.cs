@@ -25,7 +25,7 @@ public partial class App : Avalonia.Application
             DisableAvaloniaDataAnnotationValidation();
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainWindowViewModel(new MagoLauncher.Infrastructure.Services.MinecraftVersionService()),
+                DataContext = new MainWindowViewModel(new MagoLauncher.Infrastructure.Services.MinecraftInstanceService()),
             };
         }
 

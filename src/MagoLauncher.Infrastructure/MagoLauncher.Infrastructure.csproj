@@ -5,6 +5,10 @@
     <ProjectReference Include="..\MagoLauncher.Application\MagoLauncher.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="CmlLib.Core" Version="4.0.6" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

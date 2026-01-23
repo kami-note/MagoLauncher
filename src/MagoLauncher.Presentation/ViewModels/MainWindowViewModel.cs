@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -23,20 +24,29 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private bool _isLoading;
 
+    [ObservableProperty]
+    private string _playerName = "MagoPlayer";
+
+    [ObservableProperty]
+    private int _maxRamMb = 4096;
+
+    // RAM options for the dropdown
+    public int[] RamOptions { get; } = [2048, 4096, 6144, 8192, 12288, 16384];
+
     public ObservableCollection<MinecraftInstance> Instances { get; } = [];
 
-    private readonly IMinecraftVersionService _versionService;
+    private readonly MagoLauncher.Application.Services.IMinecraftInstanceService _instanceService;
 
-    public MainWindowViewModel(IMinecraftVersionService versionService)
+    public MainWindowViewModel(MagoLauncher.Application.Services.IMinecraftInstanceService instanceService)
     {
-        _versionService = versionService;
+        _instanceService = instanceService;
         Initialize();
     }
 
     public MainWindowViewModel()
     {
         // Constructor for design-time preview
-        _versionService = null!;
+        _instanceService = null!;
     }
 
     private async void Initialize()
@@ -46,10 +56,10 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private async Task LoadInstances()
     {
-        if (_versionService == null) return;
+        if (_instanceService == null) return;
 
         Instances.Clear();
-        var versions = await _versionService.GetLocalVersionsAsync();
+        var versions = await _instanceService.GetAllInstancesAsync();
 
         foreach (var version in versions)
         {
@@ -68,10 +78,17 @@ public partial class MainWindowViewModel : ViewModelBase
         IsLoading = true;
         StatusMessage = $"Iniciando {SelectedInstance.Name}...";
 
-        // Simulação de lançamento
-        await Task.Delay(1500);
+        // Launch functionality
+        try
+        {
+            await _instanceService.LaunchInstanceAsync(SelectedInstance, PlayerName, MaxRamMb);
+            StatusMessage = "Jogo iniciado com sucesso!";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Erro: {ex.Message}";
+        }
 
-        StatusMessage = "Jogo iniciado!";
         IsLoading = false;
     }
 

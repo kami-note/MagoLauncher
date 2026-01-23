@@ -167,6 +167,46 @@
                                 <TextBlock Text="JOGAR" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
                              </StackPanel>
                         </Button>
+
+                         <!-- Settings Panel -->
+                         <Border Background="#27272a" CornerRadius="12" Padding="24,20" Margin="0,30,0,0" 
+                                 HorizontalAlignment="Center" MinWidth="350">
+                             <StackPanel Spacing="16">
+                                 <TextBlock Text="CONFIGURAÇÕES" FontSize="11" FontWeight="Bold" 
+                                            Foreground="#71717a" LetterSpacing="1"/>
+
+                                 <!-- Player Name -->
+                                 <StackPanel Spacing="6">
+                                     <StackPanel Orientation="Horizontal" Spacing="8">
+                                         <material:MaterialIcon Kind="Account" Width="16" Height="16" Foreground="#a1a1aa"/>
+                                         <TextBlock Text="Nome do Jogador" FontSize="13" Foreground="#d4d4d8"/>
+                                     </StackPanel>
+                                     <TextBox Text="{Binding PlayerName}" 
+                                              Background="#3f3f46" Foreground="White" 
+                                              BorderThickness="0" CornerRadius="6" Padding="12,8"
+                                              FontSize="13"/>
+                                 </StackPanel>
+
+                                 <!-- RAM Selector -->
+                                 <StackPanel Spacing="6">
+                                     <StackPanel Orientation="Horizontal" Spacing="8">
+                                         <material:MaterialIcon Kind="Memory" Width="16" Height="16" Foreground="#a1a1aa"/>
+                                         <TextBlock Text="Memória RAM" FontSize="13" Foreground="#d4d4d8"/>
+                                     </StackPanel>
+                                     <ComboBox ItemsSource="{Binding RamOptions}" 
+                                               SelectedItem="{Binding MaxRamMb}"
+                                               Background="#3f3f46" Foreground="White" 
+                                               BorderThickness="0" CornerRadius="6" Padding="12,8"
+                                               HorizontalAlignment="Stretch" FontSize="13">
+                                         <ComboBox.ItemTemplate>
+                                             <DataTemplate>
+                                                 <TextBlock Text="{Binding}" Foreground="White"/>
+                                             </DataTemplate>
+                                         </ComboBox.ItemTemplate>
+                                     </ComboBox>
+                                 </StackPanel>
+                             </StackPanel>
+                         </Border>
                      </StackPanel>
                 </Grid>
             </Grid>

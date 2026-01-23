@@ -44,10 +44,20 @@
                     <material:MaterialIcon Kind="Bell" Width="18" Height="18" Foreground="{StaticResource SteamGreen}"/>
                     
                     <!-- Profile Name -->
-                    <TextBlock Text="{Binding PlayerName, FallbackValue='Player'}" 
-                               VerticalAlignment="Center" 
-                               Foreground="{StaticResource SteamBlueAccent}" 
-                               FontWeight="Bold"/>
+                    <!-- Profile Name Input -->
+                    <TextBox Text="{Binding PlayerName, Mode=TwoWay}" 
+                             VerticalAlignment="Center" 
+                             VerticalContentAlignment="Center"
+                             Width="120"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             Foreground="{StaticResource SteamBlueAccent}" 
+                             FontWeight="Bold"
+                             Padding="0"
+                             Margin="0"
+                             MinHeight="0"
+                             SelectionBrush="{StaticResource SteamBlueDim}"
+                             FontSize="14"/>
                                
                     <Border Width="32" Height="32" CornerRadius="2" Background="#24282f">
                         <material:MaterialIcon Kind="Account" Width="20" Height="20" Foreground="#8b929a" HorizontalAlignment="Center" VerticalAlignment="Center"/>

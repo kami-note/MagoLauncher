@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -27,6 +29,23 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private string _playerName = "MagoPlayer";
 
+    [ObservableProperty]
+    private string _searchText = "";
+
+    public enum FilterType { All, Installed, NotInstalled }
+
+    [ObservableProperty]
+    private FilterType _filterOption = FilterType.All;
+
+    partial void OnFilterOptionChanged(FilterType value) => FilterInstances();
+
+    partial void OnSearchTextChanged(string value)
+    {
+        FilterInstances();
+    }
+
+    private readonly List<MinecraftInstance> _allInstances = [];
+
     public ObservableCollection<MinecraftInstance> Instances { get; } = [];
 
     private readonly MagoLauncher.Application.Services.IMinecraftInstanceService _instanceService;
@@ -53,11 +72,8 @@ public partial class MainWindowViewModel : ViewModelBase
         _currentPage = _homePage;
     }
 
-    public MinecraftInstance? SelectedInstance
-    {
-        get => _homePage.SelectedInstance;
-        set => _homePage.SelectedInstance = value;
-    }
+    [ObservableProperty]
+    private MinecraftInstance? _selectedInstance;
 
     private async void Initialize()
     {
@@ -71,13 +87,52 @@ public partial class MainWindowViewModel : ViewModelBase
         Instances.Clear();
         var versions = await _instanceService.GetAllInstancesAsync();
 
-        foreach (var version in versions)
+        _allInstances.Clear();
+        _allInstances.AddRange(versions);
+
+        FilterInstances();
+
+        if (Instances.Count > 0 && SelectedInstance == null)
+            SelectedInstance = Instances[0];
+    }
+
+    private void FilterInstances()
+    {
+        Instances.Clear();
+
+        var query = SearchText?.Trim();
+
+        var filtered = _allInstances.AsEnumerable();
+
+        // 1. Filter by Search Text
+        if (!string.IsNullOrWhiteSpace(query))
         {
-            Instances.Add(version);
+            filtered = filtered.Where(i => i.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
         }
 
-        if (Instances.Count > 0)
+        // 2. Filter by Option
+        switch (FilterOption)
+        {
+            case FilterType.Installed:
+                filtered = filtered.Where(i => i.IsInstalled);
+                break;
+            case FilterType.NotInstalled:
+                filtered = filtered.Where(i => !i.IsInstalled);
+                break;
+            case FilterType.All:
+            default:
+                break;
+        }
+
+        foreach (var instance in filtered)
+        {
+            Instances.Add(instance);
+        }
+
+        if (Instances.Count > 0 && (SelectedInstance == null || !Instances.Contains(SelectedInstance)))
+        {
             SelectedInstance = Instances[0];
+        }
     }
 
     [RelayCommand]

@@ -15,5 +15,6 @@ public class MinecraftInstance
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime LastPlayedAt { get; set; }
     public long PlayTimeMinutes { get; set; }
+    public bool IsInstalled { get; set; } = true;
     public List<Mod> Mods { get; set; } = [];
 }

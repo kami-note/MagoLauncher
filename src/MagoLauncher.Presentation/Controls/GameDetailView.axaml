@@ -51,7 +51,7 @@
 
                  <!-- Action Bar -->
                  <StackPanel Orientation="Horizontal" Spacing="20">
-                     <!-- Play Button -->
+                    <!-- Play Button -->
                      <Button Classes="PlayButton"
                              Command="{Binding LaunchGameCommand}" IsEnabled="{Binding !IsLoading}"
                              Cursor="Hand"

@@ -32,7 +32,7 @@
          </Style>
     </UserControl.Styles>
 
-    <Grid RowDefinitions="Auto, Auto, *">
+    <Grid RowDefinitions="Auto, Auto, Auto, *">
         <!-- Header / Navigation -->
         <StackPanel Grid.Row="0" Background="{StaticResource SteamHeaderBackground}" Spacing="0">
              <TextBlock Text="MagoLauncher" 
@@ -43,16 +43,38 @@
                         LetterSpacing="1"/>
         </StackPanel>
 
-        <!-- Search / Filter (Visual only for now) -->
-        <Border Grid.Row="1" Margin="12,8" Background="#1d2027" CornerRadius="2">
+        <!-- Filter Dropdown -->
+        <ComboBox Grid.Row="1" 
+                  SelectedIndex="{Binding FilterOption, Mode=TwoWay}"
+                  HorizontalAlignment="Stretch"
+                  Margin="12,0,12,8"
+                  Background="#1d2027"
+                  PlaceholderText="Filtro"
+                  BorderThickness="0"
+                  Foreground="{StaticResource SteamTextSecondary}">
+             <ComboBoxItem>Todos</ComboBoxItem>
+             <ComboBoxItem>Instalados</ComboBoxItem>
+             <ComboBoxItem>Não Instalados</ComboBoxItem>
+        </ComboBox>
+
+        <!-- Search / Filter -->
+        <Border Grid.Row="2" Margin="12,0,12,8" Background="#1d2027" CornerRadius="2">
             <Grid ColumnDefinitions="30, *">
                 <material:MaterialIcon Kind="Magnify" Width="16" Height="16" Foreground="{StaticResource SteamTextSecondary}" Margin="8,0,0,0"/>
-                <TextBlock Text="Buscar" VerticalAlignment="Center" Foreground="{StaticResource SteamTextSecondary}" Grid.Column="1" Opacity="0.5" Margin="4,0,0,0"/>
+                <TextBox Text="{Binding SearchText, Mode=TwoWay}"
+                         Grid.Column="1"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         Padding="4,6"
+                         Watermark="Buscar"
+                         Foreground="White"
+                         CaretBrush="White"
+                         FontSize="12"/>
             </Grid>
         </Border>
 
         <!-- Game List -->
-        <ListBox Grid.Row="2" 
+        <ListBox Grid.Row="3" 
                  ItemsSource="{Binding Instances}" 
                  SelectedItem="{Binding SelectedInstance}"
                  Background="Transparent"

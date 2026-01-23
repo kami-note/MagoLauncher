@@ -29,12 +29,16 @@ public class MinecraftInstanceService : IMinecraftInstanceService
             // Filter basic types - CmlLib returns all version types (release, snapshot, old_beta, etc.)
             // For now, we return everything, or we could filter by specific needs
 
+            var versionPath = Path.Combine(_path.Versions, version.Name);
+            bool isInstalled = Directory.Exists(versionPath);
+
             instances.Add(new MinecraftInstance
             {
                 Name = version.Name,
                 MinecraftVersion = version.Name, // Using the directory name/ID as version for now
                 ModLoaderType = Domain.Enums.ModLoaderType.Vanilla,
-                InstancePath = Path.Combine(_path.Versions, version.Name),
+                InstancePath = versionPath,
+                IsInstalled = isInstalled,
                 // Could try to parse specific details if needed
             });
         }

@@ -1,0 +1,111 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MagoLauncher.Presentation.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
+        x:Class="MagoLauncher.Presentation.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="{Binding Title}"
+        Width="1000" Height="600"
+        MinWidth="800" MinHeight="500">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Grid ColumnDefinitions="250,*" RowDefinitions="*,Auto">
+        <!-- Sidebar -->
+        <Border Grid.Column="0" Grid.RowSpan="2" Background="#1a1a2e" Padding="16">
+            <Grid RowDefinitions="Auto,*,Auto">
+                <!-- Logo/Header -->
+                <StackPanel Grid.Row="0" Margin="0,0,0,24">
+                    <TextBlock Text="🎮 MagoLauncher" 
+                               FontSize="24" FontWeight="Bold" 
+                               Foreground="#e94560"/>
+                    <TextBlock Text="Minecraft Launcher" 
+                               FontSize="12" Foreground="#888"/>
+                </StackPanel>
+
+                <!-- Instance List -->
+                <ListBox Grid.Row="1" 
+                         ItemsSource="{Binding Instances}"
+                         SelectedItem="{Binding SelectedInstance}"
+                         Background="Transparent">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border Padding="12,8" Margin="0,2" CornerRadius="8"
+                                    Background="#16213e">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Name}" 
+                                               FontWeight="SemiBold" 
+                                               Foreground="White"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                        <TextBlock Text="{Binding MinecraftVersion}" 
+                                                   FontSize="11" Foreground="#888"/>
+                                        <TextBlock Text=" • " FontSize="11" Foreground="#555"/>
+                                        <TextBlock Text="{Binding ModLoaderType}" 
+                                                   FontSize="11" Foreground="#e94560"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <!-- Add Instance Button -->
+                <Button Grid.Row="2" 
+                        Content="+ Nova Instância" 
+                        Command="{Binding AddInstanceCommand}"
+                        HorizontalAlignment="Stretch"
+                        Padding="16,12"
+                        Background="#e94560"
+                        Foreground="White"
+                        CornerRadius="8"/>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <Border Grid.Column="1" Grid.Row="0" Background="#0f0f23" Padding="32">
+            <Grid RowDefinitions="Auto,*,Auto">
+                <!-- Header -->
+                <StackPanel Grid.Row="0">
+                    <TextBlock Text="{Binding SelectedInstance.Name, FallbackValue='Selecione uma instância'}" 
+                               FontSize="32" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Text="{Binding SelectedInstance.MinecraftVersion, StringFormat='Versão: {0}'}" 
+                               FontSize="14" Foreground="#888" Margin="0,8,0,0"/>
+                </StackPanel>
+
+                <!-- Center Content Area -->
+                <Border Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <StackPanel>
+                        <TextBlock Text="🎮" FontSize="64" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Pronto para jogar!" 
+                                   FontSize="18" Foreground="#888" 
+                                   HorizontalAlignment="Center" Margin="0,16,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Launch Button -->
+                <Button Grid.Row="2" 
+                        Content="▶ JOGAR" 
+                        Command="{Binding LaunchGameCommand}"
+                        IsEnabled="{Binding !IsLoading}"
+                        HorizontalAlignment="Center"
+                        Padding="48,16"
+                        FontSize="18"
+                        FontWeight="Bold"
+                        Background="#e94560"
+                        Foreground="White"
+                        CornerRadius="8"/>
+            </Grid>
+        </Border>
+
+        <!-- Status Bar -->
+        <Border Grid.Column="1" Grid.Row="1" Background="#16213e" Padding="16,8">
+            <TextBlock Text="{Binding StatusMessage}" Foreground="#888" FontSize="12"/>
+        </Border>
+    </Grid>
+</Window>
+

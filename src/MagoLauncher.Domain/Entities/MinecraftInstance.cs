@@ -1,0 +1,19 @@
+namespace MagoLauncher.Domain.Entities;
+
+/// <summary>
+/// Representa uma instância do Minecraft
+/// </summary>
+public class MinecraftInstance
+{
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public required string Name { get; set; }
+    public required string MinecraftVersion { get; set; }
+    public string? ModLoaderVersion { get; set; }
+    public Domain.Enums.ModLoaderType ModLoaderType { get; set; } = Domain.Enums.ModLoaderType.Vanilla;
+    public string? IconPath { get; set; }
+    public string? InstancePath { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime LastPlayedAt { get; set; }
+    public long PlayTimeMinutes { get; set; }
+    public List<Mod> Mods { get; set; } = [];
+}

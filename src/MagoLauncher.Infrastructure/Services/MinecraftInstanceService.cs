@@ -77,13 +77,65 @@ public class MinecraftInstanceService : IMinecraftInstanceService
             Session = MSession.CreateOfflineSession(playerName),
         };
 
+        // For modpacks, the game directory should be the version folder itself
+        // This is where mods/, config/, saves/ are located
+        var versionPath = Path.Combine(_path.Versions, instance.MinecraftVersion);
+        var modsFolder = Path.Combine(versionPath, "mods");
+
+        MinecraftLauncher launcherToUse = _launcher;
+
+        // If this version has a 'mods' folder, it's a modpack - create a launcher with that game path
+        if (Directory.Exists(modsFolder))
+        {
+            var modpackPath = new MinecraftPath(versionPath);
+            // Keep the library and asset directories pointing to the main .minecraft folder
+            modpackPath.Library = _path.Library;
+            modpackPath.Assets = _path.Assets;
+            modpackPath.Versions = _path.Versions;
+            launcherToUse = new MinecraftLauncher(modpackPath);
+        }
+
         // Launch logic
-        var process = await _launcher.CreateProcessAsync(instance.MinecraftVersion, launchOptions);
+        var process = await launcherToUse.CreateProcessAsync(instance.MinecraftVersion, launchOptions);
+
+        // Enable capturing of output for debugging
+        process.StartInfo.RedirectStandardOutput = true;
+        process.StartInfo.RedirectStandardError = true;
+        process.StartInfo.UseShellExecute = false;
+
+        // Debug output to see what arguments are being passed
+        Console.WriteLine($"[MagoLauncher] FileName: {process.StartInfo.FileName}");
+        Console.WriteLine($"[MagoLauncher] Arguments: {process.StartInfo.Arguments}");
+        Console.WriteLine($"[MagoLauncher] WorkingDirectory: {process.StartInfo.WorkingDirectory}");
 
         // Start the process
         process.Start();
 
-        // Optional: Monitor output
-        // Debug.WriteLine(process.StartInfo.Arguments);
+        // Read output asynchronously
+        _ = Task.Run(async () =>
+        {
+            while (!process.StandardOutput.EndOfStream)
+            {
+                var line = await process.StandardOutput.ReadLineAsync();
+                Console.WriteLine($"[MC-OUT] {line}");
+            }
+        });
+
+        _ = Task.Run(async () =>
+        {
+            while (!process.StandardError.EndOfStream)
+            {
+                var line = await process.StandardError.ReadLineAsync();
+                Console.WriteLine($"[MC-ERR] {line}");
+            }
+        });
+
+        // Wait a bit to see if the process exits immediately with an error
+        await Task.Delay(5000);
+
+        if (process.HasExited && process.ExitCode != 0)
+        {
+            throw new Exception($"Minecraft exited immediately with code {process.ExitCode}");
+        }
     }
 }

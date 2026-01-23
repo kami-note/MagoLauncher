@@ -10,7 +10,6 @@
   <ItemGroup>
     <Folder Include="Models\" />
     <AvaloniaResource Include="Assets\**" />
-    <ApplicationDefinition Include="App.axaml" />
   </ItemGroup>
 
   <ItemGroup>

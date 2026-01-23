@@ -1,0 +1,101 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:material="using:Material.Icons.Avalonia"
+             xmlns:vm="using:MagoLauncher.Presentation.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:DataType="vm:MainWindowViewModel"
+             x:Class="MagoLauncher.Presentation.Controls.GameDetailView">
+
+    <UserControl.Styles>
+        <Style Selector="Button.PlayButton">
+            <Setter Property="Background" Value="#a4d007"/> <!-- Steam Green -->
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        <Style Selector="Button.PlayButton:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#b7e510"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button.PlayButton:disabled /template/ ContentPresenter">
+            <Setter Property="Background" Value="#3d4450"/>
+            <Setter Property="Foreground" Value="#8b929a"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="300, *">
+        <!-- Hero/Header Section -->
+        <Grid Grid.Row="0">
+             <!-- Background Image (Placeholder Gradient for now) -->
+             <Border>
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                        <GradientStop Color="#1e354e" Offset="0"/>
+                        <GradientStop Color="#00000000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+             </Border>
+
+             <!-- Content Overlay -->
+             <StackPanel VerticalAlignment="Bottom" Margin="40,0,40,40">
+                 <!-- Game Logo/Title -->
+                 <TextBlock Text="{Binding SelectedInstance.Name, FallbackValue='Minecraft Instance'}" 
+                            FontSize="32" 
+                            FontWeight="Bold" 
+                            Foreground="White" 
+                            Margin="0,0,0,24"
+                            Effect="drop-shadow(2 2 4 black)"/>
+
+                 <!-- Action Bar -->
+                 <StackPanel Orientation="Horizontal" Spacing="20">
+                     <!-- Play Button -->
+                     <Button Classes="PlayButton"
+                             Command="{Binding LaunchGameCommand}" IsEnabled="{Binding !IsLoading}"
+                             Cursor="Hand"
+                             Padding="40,10"
+                             CornerRadius="2">
+                         <StackPanel Orientation="Horizontal" Spacing="8">
+                             <TextBlock Text="JOGAR"/>
+                         </StackPanel>
+                     </Button>
+
+                     <!-- Stats -->
+                     <StackPanel Orientation="Horizontal" Spacing="24" VerticalAlignment="Center">
+                         <StackPanel>
+                             <TextBlock Text="ÚLTIMA JOGADA" FontSize="10" Foreground="#8b929a" FontWeight="Bold"/>
+                             <TextBlock Text="Hoje" FontSize="12" Foreground="#c7d5e0"/>
+                         </StackPanel>
+                         <StackPanel>
+                             <TextBlock Text="TEMPO DE JOGO" FontSize="10" Foreground="#8b929a" FontWeight="Bold"/>
+                             <TextBlock Text="12 horas" FontSize="12" Foreground="#c7d5e0"/>
+                         </StackPanel>
+                     </StackPanel>
+                     
+                     <!-- Settings Icon -->
+                     <Button Background="Transparent" Padding="8" Margin="10,0,0,0">
+                         <material:MaterialIcon Kind="Cog" Width="24" Height="24" Foreground="#8b929a"/>
+                     </Button>
+                 </StackPanel>
+             </StackPanel>
+        </Grid>
+
+        <!-- Instance Details / Activity Feed (Placeholder) -->
+        <Border Grid.Row="1" Background="{StaticResource SteamDarkBackground}" Padding="40,20">
+            <StackPanel Spacing="16">
+                 <!-- Tabs -->
+                <StackPanel Orientation="Horizontal" Spacing="24">
+                    <TextBlock Text="ATIVIDADE" FontWeight="Bold" Foreground="White" FontSize="14"/>
+                    <TextBlock Text="COMUNIDADE" FontWeight="Bold" Foreground="{StaticResource SteamTextSecondary}" FontSize="14"/>
+                    <TextBlock Text="GUIAS" FontWeight="Bold" Foreground="{StaticResource SteamTextSecondary}" FontSize="14"/>
+                </StackPanel>
+                
+                <Rectangle Height="1" Fill="#3d4450"/>
+                
+                <TextBlock Text="Nenhuma atividade recente." Foreground="{StaticResource SteamTextSecondary}" Margin="0,20,0,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

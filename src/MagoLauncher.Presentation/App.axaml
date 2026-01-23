@@ -9,8 +9,30 @@
         <local:ViewLocator/>
     </Application.DataTemplates>
   
+    <Application.Resources>
+        <!-- Steam Palette -->
+        <SolidColorBrush x:Key="SteamDarkBackground" Color="#1b2838"/>
+        <SolidColorBrush x:Key="SteamHeaderBackground" Color="#171a21"/>
+        <SolidColorBrush x:Key="SteamContentBackground" Color="#1b2838"/> <!-- Often a gradient, but solid foundation -->
+        <SolidColorBrush x:Key="SteamBlueAccent" Color="#66c0f4"/>
+        <SolidColorBrush x:Key="SteamBlueDim" Color="#195886"/>
+        <SolidColorBrush x:Key="SteamTextPrimary" Color="#c7d5e0"/>
+        <SolidColorBrush x:Key="SteamTextSecondary" Color="#8b929a"/>
+        <SolidColorBrush x:Key="SteamGreen" Color="#a4d007"/>
+        <SolidColorBrush x:Key="SteamGreenHover" Color="#b7e510"/>
+        
+        <FontFamily x:Key="SteamFont">Segoe UI, Sans-Serif</FontFamily>
+    </Application.Resources>
+
     <Application.Styles>
         <FluentTheme />
         <StyleInclude Source="avares://Material.Icons.Avalonia/MaterialIconStyles.axaml" />
+        
+        <!-- Global Text Style -->
+        <Style Selector="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource SteamFont}"/>
+            <Setter Property="Foreground" Value="{StaticResource SteamTextPrimary}"/>
+        </Style>
     </Application.Styles>
+
 </Application>

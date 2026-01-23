@@ -1,0 +1,70 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="using:MagoLauncher.Presentation.Controls"
+             xmlns:material="using:Material.Icons.Avalonia"
+             xmlns:vm="using:MagoLauncher.Presentation.ViewModels"
+             xmlns:models="using:MagoLauncher.Domain.Entities"
+             mc:Ignorable="d" d:DesignWidth="250" d:DesignHeight="600"
+             x:DataType="vm:MainWindowViewModel"
+             x:Class="MagoLauncher.Presentation.Controls.Sidebar">
+
+    <UserControl.Styles>
+        <Style Selector="ListBoxItem">
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Margin" Value="0,1"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource SteamTextSecondary}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#2a475e"/> <!-- Steam Highlight on Hover -->
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+            <Setter Property="Background" Value="#3d4450"/> <!-- Selected but not focused -->
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+         <Style Selector="ListBoxItem:selected:focus /template/ ContentPresenter">
+             <Setter Property="Background" Value="{StaticResource SteamBlueAccent}"/> <!-- Active selection -->
+             <Setter Property="Foreground" Value="White"/>
+         </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="Auto, Auto, *">
+        <!-- Header / Navigation -->
+        <StackPanel Grid.Row="0" Background="{StaticResource SteamHeaderBackground}" Spacing="0">
+             <TextBlock Text="MagoLauncher" 
+                        FontSize="12" 
+                        Foreground="#8b929a" 
+                        Margin="16,12,16,12" 
+                        FontWeight="Bold" 
+                        LetterSpacing="1"/>
+        </StackPanel>
+
+        <!-- Search / Filter (Visual only for now) -->
+        <Border Grid.Row="1" Margin="12,8" Background="#1d2027" CornerRadius="2">
+            <Grid ColumnDefinitions="30, *">
+                <material:MaterialIcon Kind="Magnify" Width="16" Height="16" Foreground="{StaticResource SteamTextSecondary}" Margin="8,0,0,0"/>
+                <TextBlock Text="Buscar" VerticalAlignment="Center" Foreground="{StaticResource SteamTextSecondary}" Grid.Column="1" Opacity="0.5" Margin="4,0,0,0"/>
+            </Grid>
+        </Border>
+
+        <!-- Game List -->
+        <ListBox Grid.Row="2" 
+                 ItemsSource="{Binding Instances}" 
+                 SelectedItem="{Binding SelectedInstance}"
+                 Background="Transparent"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="models:MinecraftInstance">
+                    <Grid ColumnDefinitions="Auto, *">
+                        <material:MaterialIcon Kind="CubeOutline" Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center" Opacity="0.8"/>
+                        <TextBlock Text="{Binding Name}" Grid.Column="1" VerticalAlignment="Center" FontSize="13"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+</UserControl>

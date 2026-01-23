@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MagoLauncher.Presentation.ViewModels"
+        xmlns:controls="using:MagoLauncher.Presentation.Controls"
         xmlns:material="using:Material.Icons.Avalonia"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -15,187 +16,59 @@
         ExtendClientAreaToDecorationsHint="True"
         ExtendClientAreaChromeHints="PreferSystemChrome"
         ExtendClientAreaTitleBarHeightHint="40"
-        Background="#18181b">
+        Background="{StaticResource SteamDarkBackground}">
 
     <Design.DataContext>
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <Window.Styles>
-        <!-- Primary Action Button -->
-        <Style Selector="Button.primary">
-            <Setter Property="Background" Value="#8b5cf6"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Padding" Value="32,12"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Transitions">
-                <Transitions>
-                    <BrushTransition Property="Background" Duration="0:0:0.2"/>
-                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
-                </Transitions>
-            </Setter>
-        </Style>
-        <Style Selector="Button.primary:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="#7c3aed"/>
-        </Style>
-        <Style Selector="Button.primary:pressed">
-             <Setter Property="RenderTransform" Value="scale(0.98)" />
-        </Style>
-
-        <!-- Sidebar / Secondary Buttons -->
-        <Style Selector="Button.secondary">
-            <Setter Property="Background" Value="#27272a"/>
-            <Setter Property="Foreground" Value="#e4e4e7"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Padding" Value="16,8"/>
-        </Style>
-        <Style Selector="Button.secondary:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="#3f3f46"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-
-        <!-- Instance List Item -->
-        <Style Selector="ListBoxItem">
-            <Setter Property="Padding" Value="4"/>
-            <Setter Property="Margin" Value="0,4"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Cursor" Value="Hand"/>
-        </Style>
-        <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
-            <Setter Property="Background" Value="#27272a"/>
-            <Setter Property="BorderBrush" Value="#8b5cf6"/>
-        </Style>
-        <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="#27272a"/>
-        </Style>
-    </Window.Styles>
-
-    <Grid RowDefinitions="*, 85">
-        <!-- Top Section -->
-        <Grid Grid.Row="0" ColumnDefinitions="260, *">
-            <!-- Sidebar -->
-            <Border Grid.Column="0" Background="#202022" BorderBrush="#2e2e30" BorderThickness="0,0,1,0">
-                <Grid RowDefinitions="Auto, *, Auto" Margin="16">
-                    <!-- Branding -->
-                    <StackPanel Grid.Row="0" Margin="0,15,0,25" Orientation="Horizontal" Spacing="12">
-                         <Border Background="#8b5cf6" Width="32" Height="32" CornerRadius="8">
-                            <material:MaterialIcon Kind="AutoFix" Width="18" Height="18" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                         </Border>
-                         <StackPanel VerticalAlignment="Center" Spacing="0">
-                            <TextBlock Text="Mago" FontSize="16" FontWeight="Bold" Foreground="White" />
-                            <TextBlock Text="Launcher" FontSize="11" Foreground="#a1a1aa" />
-                         </StackPanel>
-                    </StackPanel>
-
-                    <!-- Navigation -->
-                    <StackPanel Grid.Row="1" Spacing="4" Margin="0,0,0,20">
-                        <Button Command="{Binding GoToHomeCommand}" Classes="secondary" HorizontalAlignment="Stretch">
-                            <StackPanel Orientation="Horizontal" Spacing="12">
-                                <material:MaterialIcon Kind="Home" Width="18" Height="18" Foreground="#8b5cf6"/>
-                                <TextBlock Text="Início" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
-                        <Button Command="{Binding GoToSettingsCommand}" Classes="secondary" HorizontalAlignment="Stretch">
-                            <StackPanel Orientation="Horizontal" Spacing="12">
-                                <material:MaterialIcon Kind="Settings" Width="18" Height="18" Foreground="#a1a1aa"/>
-                                <TextBlock Text="Configurações" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
-
-                    <!-- Navigation / Instances -->
-                    <DockPanel Grid.Row="1" Margin="0,110,0,0">
-                         <TextBlock DockPanel.Dock="Top" Text="MINHA COLEÇÃO" FontSize="10" FontWeight="Bold" Foreground="#52525b" Margin="4,0,0,12" LetterSpacing="1"/>
-                         
-                         <ListBox ItemsSource="{Binding Instances}" SelectedItem="{Binding SelectedInstance}" Background="Transparent">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid ColumnDefinitions="Auto, *" Margin="4,2">
-                                        <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" Background="#3f3f46" Margin="0,0,12,0">
-                                            <material:MaterialIcon Kind="CubeOutline" Width="18" Height="18" Foreground="#d4d4d8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Border>
-                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding Name}" FontWeight="Medium" FontSize="13" Foreground="#f4f4f5"/>
-                                            <TextBlock Text="{Binding MinecraftVersion}" FontSize="11" Foreground="#a1a1aa"/>
-                                        </StackPanel>
-                                    </Grid>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                         </ListBox>
-                    </DockPanel>
-
-                    <!-- Add Button -->
-                    <Button Grid.Row="2" Command="{Binding AddInstanceCommand}" 
-                            Classes="secondary" HorizontalAlignment="Stretch" Margin="0,10,0,0">
-                       <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
-                           <material:MaterialIcon Kind="Plus" Width="16" Height="16"/>
-                           <TextBlock Text="Nova Instância" FontSize="13" VerticalAlignment="Center"/>
-                       </StackPanel>
-                    </Button>
-                </Grid>
-            </Border>
-
-            <!-- Main Content Area -->
-            <Border Grid.Column="1" Background="#18181b">
-                <TransitioningContentControl Content="{Binding CurrentPage}">
-                    <TransitioningContentControl.PageTransition>
-                        <CrossFade Duration="0:0:0.2" />
-                    </TransitioningContentControl.PageTransition>
-                </TransitioningContentControl>
-            </Border>
-        </Grid>
-
-        <!-- Bottom Launcher Bar -->
-        <Border Grid.Row="1" Background="#202022" BorderBrush="#2e2e30" BorderThickness="0,1,0,0">
-            <Grid ColumnDefinitions="Auto, *, Auto" Margin="24,0">
+    <Grid RowDefinitions="40, *">
+        <!-- Main Application Header (Steam Top Bar) -->
+        <Border Grid.Row="0" Background="{StaticResource SteamHeaderBackground}" Padding="16,0">
+            <Grid ColumnDefinitions="Auto, *, Auto">
+                <!-- Navigation Links (Store, Library, etc) -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="24" VerticalAlignment="Center">
+                    <!-- Menu Buttons (Window controls are handled by OS/Chrome usually but we add space) -->
+                </StackPanel>
                 
-                <!-- Player Profile Area -->
-                <StackPanel Grid.Column="0" VerticalAlignment="Center" Orientation="Horizontal" Spacing="16">
-                     <Border Width="44" Height="44" CornerRadius="12" Background="#27272a" BorderBrush="#3f3f46" BorderThickness="1">
-                         <material:MaterialIcon Kind="Account" Width="24" Height="24" Foreground="#8b5cf6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                     </Border>
-                     <StackPanel VerticalAlignment="Center" Spacing="2">
-                        <TextBlock Text="JOGANDO COMO" FontSize="10" FontWeight="Black" Foreground="#71717a" LetterSpacing="1.2"/>
-                        <TextBox Text="{Binding PlayerName}" 
-                                 Background="#2e2e30" 
-                                 BorderThickness="0" 
-                                 Padding="10,4" 
-                                 CornerRadius="6"
-                                 Foreground="White" 
-                                 FontSize="14" 
-                                 FontWeight="SemiBold" 
-                                 VerticalContentAlignment="Center"
-                                 MinWidth="160" 
-                                 Watermark="Nome do Jogador"/>
-                     </StackPanel>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="32" VerticalAlignment="Center" Margin="0,0,0,0">
+                    <TextBlock Text="LOJA" FontSize="14" FontWeight="Bold" Foreground="{StaticResource SteamTextSecondary}" Cursor="Hand"/>
+                    <TextBlock Text="BIBLIOTECA" FontSize="14" FontWeight="Bold" Foreground="{StaticResource SteamTextPrimary}" TextDecorations="Underline" Cursor="Hand"/>
+                    <TextBlock Text="COMUNIDADE" FontSize="14" FontWeight="Bold" Foreground="{StaticResource SteamTextSecondary}" Cursor="Hand"/>
+                    <TextBlock Text="USUÁRIO" FontSize="14" FontWeight="Bold" Foreground="{StaticResource SteamTextSecondary}" Cursor="Hand"/>
                 </StackPanel>
 
-                <!-- Status & Progress -->
-                <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8" MaxWidth="400">
-                    <TextBlock Text="{Binding StatusMessage}" 
-                               FontSize="13" Foreground="#e4e4e7" HorizontalAlignment="Center" FontWeight="Medium"/>
-                    <ProgressBar IsVisible="{Binding IsLoading}" 
-                                 IsIndeterminate="True" 
-                                 Height="3" 
-                                 Width="300"
-                                 Background="#2e2e30" 
-                                 Foreground="#8b5cf6"
-                                 CornerRadius="2"/>
+                 <!-- User Profile / Window Controls Area -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center" Margin="0,0,140,0">
+                    <!-- Notifications -->
+                    <material:MaterialIcon Kind="Bell" Width="18" Height="18" Foreground="{StaticResource SteamGreen}"/>
+                    
+                    <!-- Profile Name -->
+                    <TextBlock Text="{Binding PlayerName, FallbackValue='Player'}" 
+                               VerticalAlignment="Center" 
+                               Foreground="{StaticResource SteamBlueAccent}" 
+                               FontWeight="Bold"/>
+                               
+                    <Border Width="32" Height="32" CornerRadius="2" Background="#24282f">
+                        <material:MaterialIcon Kind="Account" Width="20" Height="20" Foreground="#8b929a" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
                 </StackPanel>
-
-                <!-- Launch Action -->
-                <Button Grid.Column="2" Classes="primary" Height="55" Width="200"
-                        Command="{Binding LaunchGameCommand}" IsEnabled="{Binding !IsLoading}"
-                        VerticalAlignment="Center">
-                     <StackPanel Orientation="Horizontal" Spacing="12">
-                        <material:MaterialIcon Kind="Play" Width="24" Height="24" VerticalAlignment="Center"/>
-                        <TextBlock Text="JOGAR" FontSize="20" FontWeight="Black" VerticalAlignment="Center" LetterSpacing="1"/>
-                     </StackPanel>
-                </Button>
             </Grid>
         </Border>
+
+        <!-- Content Area -->
+        <Grid Grid.Row="1" ColumnDefinitions="260, *">
+            
+            <!-- Sidebar (Game List) -->
+            <controls:Sidebar Grid.Column="0" Margin="0,0,1,0"/>
+            
+            <!-- Separator -->
+            <Rectangle Grid.Column="0" HorizontalAlignment="Right" Width="1" Fill="Black"/>
+
+            <!-- Main Game View -->
+            <controls:GameDetailView Grid.Column="1"/>
+            
+        </Grid>
     </Grid>
 </Window>
+

@@ -51,13 +51,13 @@ public partial class HomeViewModel : ViewModelBase
         Initialize();
     }
 
-     public HomeViewModel()
+    public HomeViewModel()
     {
         // Constructor for design-time preview
         _instanceService = null!;
         _settingsViewModel = new SettingsViewModel();
         _mainWindowViewModel = new MainWindowViewModel();
-        
+
     }
 
     private async void Initialize()
@@ -65,7 +65,7 @@ public partial class HomeViewModel : ViewModelBase
         await LoadInstances();
     }
 
-    private async Task LoadInstances()
+    public async Task ReloadInstances()
     {
         if (_instanceService == null) return;
 
@@ -77,9 +77,12 @@ public partial class HomeViewModel : ViewModelBase
 
         FilterInstances();
 
-        if (Instances.Count > 0 && SelectedInstance == null)
+        // Try to preserve selection if possible, otherwise select first
+        if (Instances.Count > 0 && (SelectedInstance == null || !Instances.Contains(SelectedInstance)))
             SelectedInstance = Instances[0];
     }
+
+    private async Task LoadInstances() => await ReloadInstances();
 
     private void FilterInstances()
     {
@@ -120,23 +123,38 @@ public partial class HomeViewModel : ViewModelBase
         }
     }
 
+    [ObservableProperty]
+    private string _gameOutput = "";
+
     [RelayCommand]
     public async Task LaunchGame()
     {
         if (SelectedInstance == null) return;
 
         IsLoading = true;
+        GameOutput = ""; // Clear previous log
         _mainWindowViewModel.StatusMessage = $"Iniciando {SelectedInstance.Name}...";
+
+        Action<string> outputAction = (line) =>
+        {
+            // Dispatch to UI thread if needed, but simple property set might work if bound correctly
+            // Avalonia usually needs UI thread for collection changes, string property might be forgiving or need dispatcher
+            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+            {
+                GameOutput += line + "\n";
+            });
+        };
 
         // Launch functionality
         try
         {
-            await _instanceService.LaunchInstanceAsync(SelectedInstance, _mainWindowViewModel.PlayerName, _settingsViewModel.MaxRamMb);
+            await _instanceService.LaunchInstanceAsync(SelectedInstance, _mainWindowViewModel.PlayerName, _settingsViewModel.MaxRamMb, outputAction);
             _mainWindowViewModel.StatusMessage = "Jogo iniciado com sucesso!";
         }
         catch (Exception ex)
         {
             _mainWindowViewModel.StatusMessage = $"Erro: {ex.Message}";
+            outputAction($"[FATAL ERROR] {ex.Message}");
         }
 
         IsLoading = false;

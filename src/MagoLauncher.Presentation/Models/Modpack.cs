@@ -26,5 +26,7 @@ namespace MagoLauncher.Presentation.Models
             get => _thumbnailBitmap;
             set => SetProperty(ref _thumbnailBitmap, value);
         }
+
+        public System.Collections.Generic.List<Application.DTOs.ModpackChangelogDto>? Changelogs { get; set; }
     }
 }

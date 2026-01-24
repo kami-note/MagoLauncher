@@ -12,5 +12,5 @@ public interface IMinecraftInstanceService
     Task CreateInstanceAsync(MinecraftInstance instance);
     Task UpdateInstanceAsync(MinecraftInstance instance);
     Task DeleteInstanceAsync(Guid id);
-    Task LaunchInstanceAsync(MinecraftInstance instance, string playerName, int maxRamMb);
+    Task LaunchInstanceAsync(MinecraftInstance instance, string playerName, int maxRamMb, Action<string>? outputCallback = null);
 }

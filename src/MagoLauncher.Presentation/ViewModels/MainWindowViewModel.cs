@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MagoLauncher.Application.Services;
+using System.Threading.Tasks;
 
 namespace MagoLauncher.Presentation.ViewModels;
 
@@ -25,8 +26,11 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly SettingsViewModel _settingsPage;
     private readonly StoreViewModel _storePage;
 
-    public MainWindowViewModel(IMinecraftInstanceService instanceService)
+    private readonly IModpackService _modpackService;
+
+    public MainWindowViewModel(IMinecraftInstanceService instanceService, IModpackService modpackService)
     {
+        _modpackService = modpackService;
         _settingsPage = new SettingsViewModel();
         _storePage = new StoreViewModel(this);
         // Pass dependencies to HomeViewModel
@@ -39,6 +43,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel()
     {
         // Constructor for design-time preview
+        _modpackService = null!;
         _settingsPage = new SettingsViewModel();
         _storePage = new StoreViewModel();
         _homePage = new HomeViewModel(null!, _settingsPage, this);
@@ -47,10 +52,11 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    public void GoToHome()
+    public async Task GoToHome()
     {
         CurrentPage = _homePage;
         ActiveView = "Home";
+        await _homePage.ReloadInstances();
     }
 
     [RelayCommand]
@@ -69,7 +75,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public void GoToModpackDetails(Models.Modpack modpack)
     {
-        CurrentPage = new ModpackDetailViewModel(this, modpack);
+        CurrentPage = new ModpackDetailViewModel(this, modpack, _modpackService);
         ActiveView = "Store"; // Keep "Store" active in sidebar
     }
 }

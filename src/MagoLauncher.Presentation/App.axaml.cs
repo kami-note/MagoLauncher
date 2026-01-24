@@ -24,9 +24,14 @@ public partial class App : Avalonia.Application
             // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
             // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
             DisableAvaloniaDataAnnotationValidation();
+
+            var httpClient = new System.Net.Http.HttpClient();
+            var modpackService = new MagoLauncher.Infrastructure.Services.ModpackService(httpClient);
+            var instanceService = new MagoLauncher.Infrastructure.Services.MinecraftInstanceService();
+
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainWindowViewModel(new MagoLauncher.Infrastructure.Services.MinecraftInstanceService()),
+                DataContext = new MainWindowViewModel(instanceService, modpackService),
             };
         }
 

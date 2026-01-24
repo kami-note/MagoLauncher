@@ -17,4 +17,5 @@ public class MinecraftInstance
     public long PlayTimeMinutes { get; set; }
     public bool IsInstalled { get; set; } = true;
     public List<Mod> Mods { get; set; } = [];
+    public ModpackMetadata? Metadata { get; set; }
 }

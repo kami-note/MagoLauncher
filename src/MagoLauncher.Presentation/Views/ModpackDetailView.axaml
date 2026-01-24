@@ -107,7 +107,7 @@
                  </Image.Effect>
              </Image>
              <!-- Dark Overlay for Readability -->
-             <Rectangle Fill="#0f1219" Opacity="0.5"/>
+             <Rectangle Fill="#0f1219" Opacity="0.2"/>
              
              <!-- Gradient Fade at Bottom to merge with body -->
              <Border VerticalAlignment="Bottom" Height="200">

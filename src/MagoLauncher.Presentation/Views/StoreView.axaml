@@ -201,14 +201,14 @@
                                     <BlurEffect Radius="40"/>
                                 </Image.Effect>
                             </Image>
-                            <Rectangle Fill="#000000" Opacity="0.4"/>
+                            <Rectangle Fill="#000000" Opacity="0.1"/>
                             
                             <!-- Gradient Overlay for Contrast -->
                             <Border>
                                 <Border.Background>
                                     <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,0%">
-                                        <GradientStop Color="#0f1219" Offset="0"/>
-                                        <GradientStop Color="#000f1219" Offset="0.7"/>
+                                        <GradientStop Color="#CC0f1219" Offset="0"/>
+                                        <GradientStop Color="#000f1219" Offset="0.5"/>
                                     </LinearGradientBrush>
                                 </Border.Background>
                             </Border>

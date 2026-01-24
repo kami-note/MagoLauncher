@@ -113,7 +113,7 @@
                      </Image.Effect>
                  </Image>
                  <!-- Dark Overlay -->
-                 <Rectangle Fill="#0f1219" Opacity="0.4"/>
+                 <Rectangle Fill="#0f1219" Opacity="0.2"/>
                  <Border>
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">

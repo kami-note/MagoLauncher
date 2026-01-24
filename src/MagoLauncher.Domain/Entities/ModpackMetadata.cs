@@ -10,4 +10,9 @@ public class ModpackMetadata
     public string? ThumbnailUrl { get; set; }
     public string? Summary { get; set; }
     public List<ModpackChangelog>? Changelogs { get; set; }
+
+    // Custom Configuration
+    public int? MaxRamMb { get; set; }
+    public bool OverrideGlobalRam { get; set; }
+    public string? JavaArgs { get; set; }
 }

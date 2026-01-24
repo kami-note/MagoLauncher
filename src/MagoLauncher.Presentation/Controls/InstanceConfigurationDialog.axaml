@@ -1,0 +1,155 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:MagoLauncher.Presentation.ViewModels"
+             xmlns:material="using:Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="550"
+             x:Class="MagoLauncher.Presentation.Controls.InstanceConfigurationDialog"
+             x:DataType="vm:InstanceConfigurationViewModel">
+
+    <UserControl.Styles>
+        <!-- Steam-like Sidebar Button -->
+        <Style Selector="RadioButton.SidebarItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#8b929a"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter Content="{TemplateBinding Content}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+        <Style Selector="RadioButton.SidebarItem:pointerover">
+            <Setter Property="Background" Value="#3d4450"/>
+            <Setter Property="Foreground" Value="#e1e6eb"/>
+        </Style>
+        <Style Selector="RadioButton.SidebarItem:checked">
+            <Setter Property="Background" Value="#3d4450"/>
+            <Setter Property="Foreground" Value="#66c0f4"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="BorderThickness" Value="3,0,0,0"/>
+            <Setter Property="BorderBrush" Value="#66c0f4"/>
+        </Style>
+
+        <!-- Section Header -->
+        <Style Selector="TextBlock.SectionHeader">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#e1e6eb"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Grid>
+        <!-- Modal Overlay Background -->
+        <Border Background="#1b2838" CornerRadius="4" 
+                BoxShadow="0 8 32 0 #0f1219" 
+                BorderThickness="0"
+                Width="700" Height="500"
+                HorizontalAlignment="Center" VerticalAlignment="Center">
+            
+        <Panel>
+            <Grid RowDefinitions="Auto, *">
+                <!-- Window Header -->
+                <Grid Grid.Row="0" Background="#16202d" Height="48" ColumnDefinitions="Auto, *, Auto">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" Margin="16,0">
+                         <TextBlock Text="{Binding Title}" VerticalAlignment="Center" FontWeight="Bold" Foreground="#e1e6eb"/>
+                    </StackPanel>
+                    
+                    <!-- Close Button would be here if managed by window chrome, 
+                         but since it's an overlay, we might adding an explicit close X -->
+                    <Button Command="{Binding CloseCommand}" Grid.Column="2" Background="Transparent" Foreground="#8b929a" Width="48" Height="48" Padding="0">
+                        <material:MaterialIcon Kind="Close" Width="20" Height="20"/>
+                    </Button>
+                </Grid>
+
+                <!-- Two Column Layout -->
+                <Grid Grid.Row="1" ColumnDefinitions="200, *">
+                    <!-- Left Sidebar -->
+                    <Border Grid.Column="0" Background="#16202d" BorderThickness="0,0,1,0" BorderBrush="#3d4450">
+                        <StackPanel Margin="0,16">
+                            <RadioButton Classes="SidebarItem" Content="Geral" IsChecked="True" GroupName="SettingsNav" Name="NavGeneral"/>
+                            <RadioButton Classes="SidebarItem" Content="Argumentos de Inicialização" GroupName="SettingsNav" Name="NavLaunch"/>
+                            <RadioButton Classes="SidebarItem" Content="Arquivos Instalados" GroupName="SettingsNav"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Right Content -->
+                    <Border Grid.Column="1" Background="#1b2838" Padding="32">
+                        <Panel>
+                            <!-- General View -->
+                            <StackPanel IsVisible="{Binding #NavGeneral.IsChecked}">
+                                <TextBlock Text="OPÇÕES DE INICIALIZAÇÃO" Classes="SectionHeader"/>
+                                
+                                <StackPanel Spacing="24">
+                                     <!-- Override Toggle -->
+                                    <StackPanel Orientation="Horizontal" Spacing="16">
+                                        <ToggleSwitch IsChecked="{Binding OverrideGlobalRam}" OnContent="" OffContent=""/>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="Usar configurações personalizadas" Foreground="#e1e6eb" FontWeight="Bold"/>
+                                            <TextBlock Text="Habilita alocação de memória e argumentos específicos." FontSize="12" Foreground="#8b929a"/>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- RAM Settings -->
+                                    <StackPanel IsVisible="{Binding OverrideGlobalRam}" Spacing="8">
+                                        <TextBlock Text="MEMÓRIA RAM" FontSize="12" FontWeight="Bold" Foreground="#66c0f4"/>
+                                        
+                                        <Grid ColumnDefinitions="*, Auto">
+                                             <Slider Minimum="2048" Maximum="16384" TickFrequency="512" IsSnapToTickEnabled="True"
+                                                    Value="{Binding MaxRamMb}" Grid.Column="0" Margin="0,0,16,0"
+                                                    Foreground="#66c0f4"/>
+                                             <TextBlock Text="{Binding MaxRamMb, StringFormat='{}{0} MB'}" Foreground="#e1e6eb" Grid.Column="1" VerticalAlignment="Center"/>
+                                        </Grid>
+                                        <TextBlock Text="Defina a quantidade de memória RAM disponível para o jogo." FontSize="11" Foreground="#6a7683"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+
+                             <!-- Launch Args View -->
+                            <StackPanel IsVisible="{Binding #NavLaunch.IsChecked}">
+                                <TextBlock Text="ARGUMENTOS AVANÇADOS" Classes="SectionHeader"/>
+                                
+                                <StackPanel Spacing="16" IsVisible="{Binding OverrideGlobalRam}">
+                                    <TextBlock Text="ARGUMENTOS DA JVM" FontSize="12" FontWeight="Bold" Foreground="#66c0f4"/>
+                                    <TextBox Text="{Binding JavaArgs}" Watermark="-Xmx4G" 
+                                             Background="#101822" BorderBrush="#3d4450" Foreground="#e1e6eb" Padding="12"
+                                             AcceptsReturn="False" CornerRadius="2"/>
+                                    <TextBlock Text="Cuidado: Argumentos incorretos podem impedir o jogo de iniciar." FontSize="11" Foreground="#d9534f"/>
+                                </StackPanel>
+                                
+                                <StackPanel IsVisible="{Binding !OverrideGlobalRam}">
+                                    <TextBlock Text="As configurações personalizadas estão desativadas." Foreground="#8b929a"/>
+                                    <Button Content="Ativar Personalização" Command="{Binding ToggleOverrideCommand}" 
+                                            Background="#2a3f5a" Foreground="White" Margin="0,16,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Panel>
+                    </Border>
+                </Grid>
+            </Grid>
+            
+            <!-- Floating Save Action (Bottom Right) -->
+            <Border HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                    Margin="0,0,32,32" CornerRadius="2"
+                    BoxShadow="0 4 12 0 #000000">
+                <Button Command="{Binding SaveCommand}" 
+                        Background="#66c0f4" Foreground="#16202d" FontWeight="Bold" FontSize="14"
+                        Padding="32,12" CornerRadius="2">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <material:MaterialIcon Kind="Check" Width="18" Height="18"/>
+                        <TextBlock Text="SALVAR"/>
+                    </StackPanel>
+                </Button>
+            </Border>
+        </Panel>
+            
+        </Border>
+    </Grid>
+</UserControl>

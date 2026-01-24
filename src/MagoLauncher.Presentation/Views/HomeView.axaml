@@ -8,14 +8,36 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MagoLauncher.Presentation.Views.HomeView"
              x:DataType="vm:HomeViewModel">
-    <Grid ColumnDefinitions="260, *">
-        <!-- Sidebar (Game List) -->
-        <controls:Sidebar Grid.Column="0" Margin="0,0,1,0"/>
-        
-        <!-- Separator -->
-        <Rectangle Grid.Column="0" HorizontalAlignment="Right" Width="1" Fill="#1c2533"/>
+    
+    <UserControl.DataTemplates>
+        <DataTemplate DataType="{x:Type vm:InstanceConfigurationViewModel}">
+            <controls:InstanceConfigurationDialog/>
+        </DataTemplate>
+    </UserControl.DataTemplates>
 
-        <!-- Main Game View -->
-        <controls:GameDetailView Grid.Column="1"/>
-    </Grid>
+    <Panel>
+        <Grid ColumnDefinitions="260, *">
+            <!-- Sidebar (Game List) -->
+            <controls:Sidebar Grid.Column="0" Margin="0,0,1,0"/>
+            
+            <!-- Separator -->
+            <Rectangle Grid.Column="0" HorizontalAlignment="Right" Width="1" Fill="#1c2533"/>
+
+            <!-- Main Game View -->
+            <controls:GameDetailView Grid.Column="1"/>
+        </Grid>
+
+        <!-- Overlay / Settings Dialog -->
+        <Border Grid.ColumnSpan="2" Background="#80000000" IsVisible="{Binding IsOverlayVisible}">
+            <Grid>
+                 <!-- Close on click outside -->
+                <Button Background="Transparent" Command="{Binding CloseOverlayCommand}" 
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                
+                <!-- Dialog Content -->
+                <ContentControl Content="{Binding OverlayContent}" 
+                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+    </Panel>
 </UserControl>

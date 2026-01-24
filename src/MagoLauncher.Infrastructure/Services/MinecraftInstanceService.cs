@@ -82,10 +82,23 @@ public class MinecraftInstanceService : IMinecraftInstanceService
         return Task.CompletedTask;
     }
 
-    public Task UpdateInstanceAsync(MinecraftInstance instance)
+    public async Task UpdateInstanceAsync(MinecraftInstance instance)
     {
-        // Placeholder for updating logic
-        return Task.CompletedTask;
+        if (instance.Metadata == null) return;
+
+        var versionPath = Path.Combine(_path.Versions, instance.MinecraftVersion);
+        var jsonPath = Path.Combine(versionPath, "mago_instance.json");
+
+        try
+        {
+            var json = System.Text.Json.JsonSerializer.Serialize(instance.Metadata, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+            await File.WriteAllTextAsync(jsonPath, json);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[MagoLauncher] Failed to save metadata for {instance.Name}: {ex.Message}");
+            throw;
+        }
     }
 
     public Task DeleteInstanceAsync(Guid id)
@@ -96,12 +109,26 @@ public class MinecraftInstanceService : IMinecraftInstanceService
 
     public async Task LaunchInstanceAsync(MinecraftInstance instance, string playerName, int maxRamMb, Action<string>? outputCallback = null)
     {
+        // Determine RAM to use
+        int ramToUse = maxRamMb;
+        if (instance.Metadata?.OverrideGlobalRam == true && instance.Metadata.MaxRamMb.HasValue)
+        {
+            ramToUse = instance.Metadata.MaxRamMb.Value;
+            outputCallback?.Invoke($"[MagoLauncher] Using custom RAM setting: {ramToUse}MB");
+        }
+        else
+        {
+            outputCallback?.Invoke($"[MagoLauncher] Using global RAM setting: {ramToUse}MB");
+        }
+
         // Create launch options
         var launchOptions = new MLaunchOption
         {
-            MaximumRamMb = maxRamMb,
+            MaximumRamMb = ramToUse,
             Session = MSession.CreateOfflineSession(playerName),
         };
+
+
 
         // For modpacks, the game directory should be the version folder itself
         // This is where mods/, config/, saves/ are located
@@ -125,6 +152,17 @@ public class MinecraftInstanceService : IMinecraftInstanceService
 
         // Launch logic
         var process = await launcherToUse.CreateProcessAsync(instance.MinecraftVersion, launchOptions);
+
+        // Append custom Java arguments if present
+        if (instance.Metadata?.OverrideGlobalRam == true && !string.IsNullOrWhiteSpace(instance.Metadata.JavaArgs))
+        {
+            // Inject custom arguments at the beginning (after the java executable, but MLaunchOption handles the executable)
+            // process.StartInfo.Arguments contains the arguments passed TO java.
+            // We want to add them before the class path (-cp).
+            var args = process.StartInfo.Arguments;
+            process.StartInfo.Arguments = $"{instance.Metadata.JavaArgs} {args}";
+            outputCallback?.Invoke($"[MagoLauncher] Injected custom Java arguments: {instance.Metadata.JavaArgs}");
+        }
 
         // FIX: NeoForge 1.21+ BootstrapLauncher Conflict
         // The error "Module named cpw.mods.bootstraplauncher was already on the JVMs ... but class-path contains it"

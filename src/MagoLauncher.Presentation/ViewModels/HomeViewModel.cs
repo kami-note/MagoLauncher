@@ -24,6 +24,30 @@ public partial class HomeViewModel : ViewModelBase
     [ObservableProperty]
     private string _searchText = "";
 
+    [ObservableProperty]
+    private object? _overlayContent;
+
+    [ObservableProperty]
+    private bool _isOverlayVisible;
+
+    [RelayCommand]
+    public void CloseOverlay()
+    {
+        IsOverlayVisible = false;
+        OverlayContent = null;
+    }
+
+    [RelayCommand]
+    public void OpenInstanceSettings()
+    {
+        if (SelectedInstance == null) return;
+
+        var vm = new InstanceConfigurationViewModel(SelectedInstance, _instanceService, () => CloseOverlay());
+        OverlayContent = vm;
+        IsOverlayVisible = true;
+    }
+
+
     public enum FilterType { All, Installed, NotInstalled }
 
     [ObservableProperty]

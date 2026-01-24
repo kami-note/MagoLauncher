@@ -177,7 +177,7 @@
                  
                  <!-- Right: Settings / Extras -->
                  <StackPanel Grid.Column="1" VerticalAlignment="Bottom" Spacing="12">
-                     <Button Background="#1c2533" Padding="12" CornerRadius="4" BorderThickness="0" Cursor="Hand" ToolTip.Tip="Configurações">
+                     <Button Command="{Binding OpenInstanceSettingsCommand}" Background="#1c2533" Padding="12" CornerRadius="4" BorderThickness="0" Cursor="Hand" ToolTip.Tip="Configurações">
                          <material:MaterialIcon Kind="Cog" Width="20" Height="20" Foreground="#8b929a"/>
                      </Button>
                      <Button Background="#1c2533" Padding="12" CornerRadius="4" BorderThickness="0" Cursor="Hand" ToolTip.Tip="Favorito">

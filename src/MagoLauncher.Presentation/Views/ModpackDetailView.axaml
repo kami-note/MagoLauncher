@@ -1,0 +1,93 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:MagoLauncher.Presentation.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
+             x:Class="MagoLauncher.Presentation.Views.ModpackDetailView"
+             x:DataType="vm:ModpackDetailViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="TextBlock.H1">
+            <Setter Property="FontSize" Value="32"/>
+            <Setter Property="FontWeight" Value="Heavy"/>
+            <Setter Property="Foreground" Value="#ffffff"/>
+        </Style>
+        <Style Selector="Button.BackBtn">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#8b929a"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.BackBtn:pointerover">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button.ActionBtn">
+            <Setter Property="Background" Value="#66c0f4"/>
+            <Setter Property="Foreground" Value="#0f1219"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="24,10"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+    </UserControl.Styles>
+
+    <!-- Main Container -->
+    <Grid Background="#1b2838">
+        
+        <!-- Content -->
+        <!-- Using explicit RowDefinitions to ensure layout structure -->
+        <Grid RowDefinitions="300, *">
+            
+            <!-- Row 0: Header / Hero Area -->
+            <Grid Grid.Row="0">
+                <!-- Background Image (Dimmed) -->
+                <Image Source="{Binding Modpack.ThumbnailBitmap}" Stretch="UniformToFill" Opacity="0.3"/>
+                
+                <!-- Back Button (Top Left) -->
+                <Button Classes="BackBtn" Command="{Binding GoBackCommand}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <TextBlock Text="&lt;" FontWeight="Bold"/>
+                        <TextBlock Text="VOLTAR PARA LOJA"/>
+                    </StackPanel>
+                </Button>
+
+                <!-- Header Content (Bottom Left) -->
+                <StackPanel VerticalAlignment="Bottom" Margin="40,0,0,20" Spacing="10">
+                    <Grid ColumnDefinitions="Auto, Auto" RowDefinitions="Auto">
+                         <!-- Cover Image Mini -->
+                         <Image Grid.Column="0" Source="{Binding Modpack.ThumbnailBitmap}" Width="150" Height="150" Margin="0,0,20,0" VerticalAlignment="Bottom"/>
+                         
+                         <!-- Title and Author -->
+                         <StackPanel Grid.Column="1" VerticalAlignment="Bottom">
+                             <TextBlock Text="{Binding Modpack.Name}" Classes="H1"/>
+                             <TextBlock Text="{Binding Modpack.Author, StringFormat='Por: {0}'}" FontSize="14" Foreground="#cccccc"/>
+                             <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,10,0,0">
+                                 <TextBlock Text="{Binding Modpack.MinecraftVersion}" Foreground="#8b929a" Background="#2a3849" Padding="5,2"/>
+                                 <TextBlock Text="{Binding Modpack.Version}" Foreground="#8b929a" Background="#2a3849" Padding="5,2"/>
+                             </StackPanel>
+                         </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Grid>
+            
+            <!-- Row 1: Details / Description -->
+            <Grid Grid.Row="1" Margin="40">
+                 <StackPanel Spacing="20">
+                     <!-- Action Bar -->
+                     <StackPanel Orientation="Horizontal" Spacing="20">
+                         <Button Classes="ActionBtn" Command="{Binding InstallCommand}" Content="INSTALAR"/>
+                         <TextBlock Text="{Binding Modpack.Downloads, StringFormat='Downloads: {0}'}" VerticalAlignment="Center" Foreground="#8b929a"/>
+                     </StackPanel>
+                     
+                     <!-- Description -->
+                     <TextBlock Text="SOBRE ESTE MODPACK" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,20,0,10"/>
+                     <TextBlock Text="{Binding Modpack.Description, FallbackValue='Sem descrição.'}" TextWrapping="Wrap" Foreground="#b8c0c9"/>
+                 </StackPanel>
+            </Grid>
+
+        </Grid>
+    </Grid>
+
+</UserControl>

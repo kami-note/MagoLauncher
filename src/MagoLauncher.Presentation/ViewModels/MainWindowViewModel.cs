@@ -17,7 +17,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty]
     private string _playerName = "MagoPlayer";
-    
+
     [ObservableProperty]
     private string _activeView = "Home";
 
@@ -28,10 +28,10 @@ public partial class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel(IMinecraftInstanceService instanceService)
     {
         _settingsPage = new SettingsViewModel();
-        _storePage = new StoreViewModel();
+        _storePage = new StoreViewModel(this);
         // Pass dependencies to HomeViewModel
         _homePage = new HomeViewModel(instanceService, _settingsPage, this);
-        
+
         _currentPage = _homePage;
         _activeView = "Home"; // Initialize active view
     }
@@ -45,7 +45,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _currentPage = _homePage;
         _activeView = "Home"; // Initialize active view
     }
-    
+
     [RelayCommand]
     public void GoToHome()
     {
@@ -65,5 +65,11 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         CurrentPage = _storePage;
         ActiveView = "Store";
+    }
+
+    public void GoToModpackDetails(Models.Modpack modpack)
+    {
+        CurrentPage = new ModpackDetailViewModel(this, modpack);
+        ActiveView = "Store"; // Keep "Store" active in sidebar
     }
 }

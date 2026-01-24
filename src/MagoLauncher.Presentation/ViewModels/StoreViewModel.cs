@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using MagoLauncher.Presentation.Models;
 using System.Collections.ObjectModel;
 using System.Net.Http;
@@ -15,24 +16,40 @@ namespace MagoLauncher.Presentation.ViewModels
         [ObservableProperty]
         private ObservableCollection<Modpack> _modpacks;
 
+        [ObservableProperty]
+        private bool _isLoading;
+
         private readonly HttpClient _httpClient;
 
-        public StoreViewModel()
+        private readonly MainWindowViewModel _mainWindowViewModel;
+
+        public StoreViewModel(MainWindowViewModel mainWindowViewModel)
         {
+            _mainWindowViewModel = mainWindowViewModel;
             _httpClient = new HttpClient();
             _modpacks = new ObservableCollection<Modpack>();
             _ = LoadModpacks();
         }
 
+        public StoreViewModel()
+        {
+            // Design-time constructor
+            // Avoid creating MainWindowViewModel here to prevent circular dependency/stack overflow
+            _mainWindowViewModel = null!;
+            _httpClient = new HttpClient();
+            _modpacks = new ObservableCollection<Modpack>();
+        }
+
         private async Task LoadModpacks()
         {
+            IsLoading = true;
             try
             {
                 var response = await _httpClient.GetAsync("http://localhost:3000/modpacks");
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
                 var modpacks = JsonSerializer.Deserialize<ObservableCollection<Modpack>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                
+
                 if (modpacks != null)
                 {
                     Modpacks = modpacks;
@@ -45,6 +62,10 @@ namespace MagoLauncher.Presentation.ViewModels
             catch (HttpRequestException)
             {
                 // TODO: Handle exception
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 
@@ -65,6 +86,13 @@ namespace MagoLauncher.Presentation.ViewModels
             {
                 // TODO: Handle image loading error
             }
+        }
+
+        [RelayCommand]
+        public void OpenModpackDetails(Modpack modpack)
+        {
+            if (modpack == null) return;
+            _mainWindowViewModel.GoToModpackDetails(modpack);
         }
     }
 }

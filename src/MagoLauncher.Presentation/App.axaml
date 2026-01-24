@@ -2,10 +2,24 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="MagoLauncher.Presentation.App"
              xmlns:local="using:MagoLauncher.Presentation"
+             xmlns:vm="using:MagoLauncher.Presentation.ViewModels"
+             xmlns:views="using:MagoLauncher.Presentation.Views"
              RequestedThemeVariant="Dark">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.DataTemplates>
+        <DataTemplate DataType="{x:Type vm:HomeViewModel}">
+            <views:HomeView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:StoreViewModel}">
+            <views:StoreView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ModpackDetailViewModel}">
+            <views:ModpackDetailView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
+            <views:SettingsView/>
+        </DataTemplate>
         <local:ViewLocator/>
     </Application.DataTemplates>
   

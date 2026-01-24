@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
+using System;
 using System.Linq;
 using Avalonia.Markup.Xaml;
 using MagoLauncher.Presentation.ViewModels;
@@ -30,6 +31,16 @@ public partial class App : Avalonia.Application
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private static void LogTrace(string message)
+    {
+        try
+        {
+            var path = @"C:\Users\yurin\MagoLaucher\startup_trace.txt";
+            System.IO.File.AppendAllText(path, $"[{DateTime.Now}] {message}\n");
+        }
+        catch { }
     }
 
     private void DisableAvaloniaDataAnnotationValidation()

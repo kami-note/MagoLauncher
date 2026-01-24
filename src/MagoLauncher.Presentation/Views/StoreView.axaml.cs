@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 
 namespace MagoLauncher.Presentation.Views
 {
@@ -7,6 +8,11 @@ namespace MagoLauncher.Presentation.Views
         public StoreView()
         {
             InitializeComponent();
+        }
+
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
         }
     }
 }

@@ -91,11 +91,13 @@ public class MinecraftInstanceService : IMinecraftInstanceService
         // If this version has a 'mods' folder, it's a modpack - create a launcher with that game path
         if (Directory.Exists(modsFolder))
         {
-            var modpackPath = new MinecraftPath(versionPath);
-            // Keep the library and asset directories pointing to the main .minecraft folder
-            modpackPath.Library = _path.Library;
-            modpackPath.Assets = _path.Assets;
-            modpackPath.Versions = _path.Versions;
+            var modpackPath = new MinecraftPath(versionPath)
+            {
+                // Keep the library and asset directories pointing to the main .minecraft folder
+                Library = _path.Library,
+                Assets = _path.Assets,
+                Versions = _path.Versions
+            };
             launcherToUse = new MinecraftLauncher(modpackPath);
         }
 

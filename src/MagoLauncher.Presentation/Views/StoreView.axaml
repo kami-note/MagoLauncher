@@ -4,34 +4,319 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:MagoLauncher.Presentation.ViewModels"
              xmlns:models="using:MagoLauncher.Presentation.Models"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
              x:Class="MagoLauncher.Presentation.Views.StoreView"
-             x:DataType="vm:StoreViewModel">
-    <Design.DataContext>
-        <vm:StoreViewModel/>
-    </Design.DataContext>
+             x:DataType="vm:StoreViewModel"
+             x:Name="StoreRoot"
+             FontFamily="{StaticResource InterFont}">
 
-    <ScrollViewer>
-        <ItemsControl ItemsSource="{Binding Modpacks}">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <WrapPanel />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="models:Modpack">
-                    <Border CornerRadius="4"
-                            Background="#2a2d32"
-                            Margin="10"
-                            Width="200">
-                        <StackPanel>
-                            <Image Source="{Binding ThumbnailBitmap}" Height="100" Stretch="UniformToFill" />
-                            <TextBlock Text="{Binding Name}" FontWeight="Bold" Margin="10,5" />
-                            <TextBlock Text="{Binding Author}" Margin="10,0,10,10" />
-                        </StackPanel>
+    <UserControl.Styles>
+        <!-- Background Gradient -->
+        <Style Selector="UserControl">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                        <GradientStop Color="#0f1219" Offset="0"/>
+                        <GradientStop Color="#16202d" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Typography -->
+        <Style Selector="TextBlock.H1">
+            <Setter Property="FontSize" Value="32"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#ffffff"/>
+            <Setter Property="LetterSpacing" Value="0.5"/>
+        </Style>
+        <Style Selector="TextBlock.SectionTitle">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#e1e6eb"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+        </Style>
+
+        <!-- Navigation Buttons -->
+        <Style Selector="RadioButton.NavPill">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#8b929a"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="CornerRadius" Value="20"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Background="{TemplateBinding Background}" 
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter Content="{TemplateBinding Content}" 
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
                     </Border>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
-    </ScrollViewer>
+                </ControlTemplate>
+            </Setter>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.2"/>
+                    <BrushTransition Property="Foreground" Duration="0:0:0.2"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="RadioButton.NavPill:pointerover">
+            <Setter Property="Foreground" Value="#ffffff"/>
+            <Setter Property="Background" Value="#1a2634"/>
+        </Style>
+        <Style Selector="RadioButton.NavPill:checked">
+            <Setter Property="Foreground" Value="#0f1219"/>
+            <Setter Property="Background" Value="#66c0f4"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+
+        <!-- Game Card -->
+        <Style Selector="Border.GameCard">
+            <Setter Property="Background" Value="#1c2533"/>
+            <Setter Property="BoxShadow" Value="0 4 12 0 #00000040"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Width" Value="280"/> <!-- Fixed width for cleaner grid -->
+            <Setter Property="Height" Value="340"/>
+            <Setter Property="Margin" Value="0,0,24,24"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2"/>
+                    <BoxShadowsTransition Property="BoxShadow" Duration="0:0:0.2"/>
+                    <BrushTransition Property="Background" Duration="0:0:0.2"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Border.GameCard:pointerover">
+            <Setter Property="RenderTransform" Value="translateY(-4px)"/>
+            <Setter Property="BoxShadow" Value="0 12 24 0 #00000060"/>
+            <Setter Property="Background" Value="#253142"/>
+        </Style>
+
+        <!-- Install Button -->
+        <Style Selector="Button.PrimaryBtn">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="#66c0f4"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="#66c0f4"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="16,6"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.2"/>
+                    <BrushTransition Property="Foreground" Duration="0:0:0.2"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Button.PrimaryBtn:pointerover">
+            <Setter Property="Background" Value="#66c0f4"/>
+            <Setter Property="Foreground" Value="#0f1219"/>
+        </Style>
+
+        <!-- Invisible Button for Card Click -->
+        <Style Selector="Button.CardClickBtn">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.CardClickBtn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+
+        <!-- Tag Chip -->
+        <Style Selector="Border.TagChip">
+            <Setter Property="Background" Value="#00000040"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+        </Style>
+        <Style Selector="TextBlock.TagText">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="#8b929a"/>
+        </Style>
+
+    </UserControl.Styles>
+
+    <Grid>
+        <!-- Background Pattern (Optional subtle grid or noise could go here) -->
+        
+        <ScrollViewer>
+            <StackPanel Spacing="0">
+                
+                <!-- Navbar Area -->
+                <Grid Height="80" Margin="40,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+                        <TextBlock Text="LOJA" FontSize="28" FontWeight="Heavy" Foreground="#ffffff" VerticalAlignment="Center"/>
+                        <Rectangle Width="1" Height="24" Fill="#2a3849" Margin="8,0"/>
+                        
+                        <!-- Navigation Pills -->
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <RadioButton Classes="NavPill" Content="Destaques" IsChecked="True" GroupName="StoreNav"/>
+                            <RadioButton Classes="NavPill" Content="Categorias" GroupName="StoreNav"/>
+                            <RadioButton Classes="NavPill" Content="Top Rates" GroupName="StoreNav"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Search -->
+                    <Border Grid.Column="2" Width="260" Height="40" CornerRadius="20" Background="#1c2533" BorderBrush="#2a3849" BorderThickness="1">
+                         <Grid ColumnDefinitions="40, *">
+                             <PathIcon Data="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" 
+                                       Width="16" Height="16" Foreground="#66c0f4" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                             <TextBox Grid.Column="1" Background="Transparent" BorderThickness="0" Watermark="Buscar modpacks..." VerticalAlignment="Center" Foreground="#ffffff" CaretBrush="#66c0f4" FontSize="13"/>
+                         </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- Loading State -->
+                <Grid IsVisible="{Binding IsLoading}" Height="400">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="20">
+                         <ProgressBar IsIndeterminate="True" Width="200" Height="4" Foreground="#66c0f4" Background="#1c2533"/>
+                         <TextBlock Text="Carregando a loja..." Foreground="#8b929a" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Content State -->
+                <StackPanel IsVisible="{Binding !IsLoading}" Margin="40,0,40,40">
+                    
+                    <!-- Hero Section -->
+                    <!-- We bind to the first item for the hero, or a specific Featured property if it existed -->
+                    <Border Height="400" CornerRadius="12" ClipToBounds="True" BoxShadow="0 20 40 0 #00000060" Margin="0,0,0,40">
+                        <Grid>
+                            <!-- Blurred Background -->
+                            <Image Source="{Binding Modpacks[0].ThumbnailBitmap, FallbackValue={x:Null}}" Stretch="UniformToFill">
+                                <Image.Effect>
+                                    <BlurEffect Radius="40"/>
+                                </Image.Effect>
+                            </Image>
+                            <Rectangle Fill="#000000" Opacity="0.4"/>
+                            
+                            <!-- Gradient Overlay for Contrast -->
+                            <Border>
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,0%">
+                                        <GradientStop Color="#0f1219" Offset="0"/>
+                                        <GradientStop Color="#000f1219" Offset="0.7"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                            </Border>
+
+                            <Grid ColumnDefinitions="400, *">
+                                <!-- Info Panel -->
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="50,0,0,0" Spacing="16">
+                                    <Border Background="#66c0f4" HorizontalAlignment="Left" CornerRadius="4" Padding="8,4" IsVisible="{Binding Modpacks.Count}">
+                                        <TextBlock Text="EM DESTAQUE" FontWeight="Bold" FontSize="10" Foreground="#0f1219"/>
+                                    </Border>
+                                    
+                                    <TextBlock Text="{Binding Modpacks[0].Name, FallbackValue='Loja Offline'}" Classes="H1" TextWrapping="Wrap"/>
+                                    
+                                    <TextBlock Text="{Binding Modpacks[0].Summary, FallbackValue='Conecte-se para ver os melhores modpacks.'}" 
+                                               Foreground="#b8c0c9" FontSize="15" LineHeight="24" TextWrapping="Wrap" MaxLines="3" TextTrimming="CharacterEllipsis"/>
+
+                                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,10,0,0">
+                                         <Button Classes="PrimaryBtn" Background="#66c0f4" Foreground="#0f1219" BorderThickness="0" Padding="24,10" Content="INSTALAR AGORA"/>
+                                         <Button Classes="PrimaryBtn" Content="Mais Detalhes" 
+                                                 Command="{Binding OpenModpackDetailsCommand}" 
+                                                 CommandParameter="{Binding Modpacks[0]}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                                
+                                <!-- Hero Image (Clean) -->
+                                <Image Grid.Column="1" Source="{Binding Modpacks[0].ThumbnailBitmap}" 
+                                       VerticalAlignment="Center" HorizontalAlignment="Right" 
+                                       Height="360" Margin="0,0,50,0"
+                                       RenderOptions.BitmapInterpolationMode="HighQuality">
+                                    <Image.Effect>
+                                        <DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.5" OffsetX="0" OffsetY="10"/>
+                                    </Image.Effect>
+                                </Image>
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <!-- Modpacks Grid -->
+                    <TextBlock Text="Modpacks Populares" Classes="SectionTitle"/>
+                    
+                    <ItemsControl ItemsSource="{Binding Modpacks}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="models:Modpack">
+                                <Border Classes="GameCard">
+                                    <Grid RowDefinitions="180, *">
+                                        <!-- Image Area (Clickable) -->
+                                        <Button Grid.Row="0" Classes="CardClickBtn" 
+                                                Command="{Binding #StoreRoot.DataContext.OpenModpackDetailsCommand}"
+                                                CommandParameter="{Binding .}">
+                                            <Border CornerRadius="8,8,0,0" ClipToBounds="True">
+                                                <Panel>
+                                                    <Image Source="{Binding ThumbnailBitmap}" Stretch="UniformToFill"/>
+                                                    <!-- Loading Placeholder if no image -->
+                                                    <Border Background="#2a3849" IsVisible="{Binding ThumbnailBitmap, Converter={x:Static ObjectConverters.IsNull}}">
+                                                        <PathIcon Data="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z" 
+                                                                  Width="40" Height="40" Foreground="#3d4f63"/>
+                                                    </Border>
+                                                </Panel>
+                                            </Border>
+                                        </Button>
+
+                                        <!-- Content Area -->
+                                        <Border Grid.Row="1" Padding="20">
+                                            <Grid RowDefinitions="*, Auto, Auto">
+                                                <!-- Title is also clickable via a transparent overlay button if we wanted, but let's just make the text part of the card info -->
+                                                <StackPanel Grid.Row="0" Spacing="6">
+                                                    <Button Classes="CardClickBtn" 
+                                                            Command="{Binding #StoreRoot.DataContext.OpenModpackDetailsCommand}"
+                                                            CommandParameter="{Binding .}"
+                                                            HorizontalAlignment="Left" Padding="0">
+                                                        <TextBlock Text="{Binding Name}" Foreground="#e1e6eb" FontWeight="Bold" FontSize="16" TextTrimming="CharacterEllipsis"/>
+                                                    </Button>
+                                                    
+                                                    <TextBlock Text="{Binding Author}" Foreground="#8b929a" FontSize="13"/>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="4" Margin="0,12,0,12">
+                                                    <Border Classes="TagChip">
+                                                        <TextBlock Classes="TagText" Text="{Binding MinecraftVersion}"/>
+                                                    </Border>
+                                                    <Border Classes="TagChip">
+                                                        <TextBlock Classes="TagText" Text="{Binding Version}"/>
+                                                    </Border>
+                                                </StackPanel>
+
+                                                <Grid Grid.Row="2" ColumnDefinitions="*, Auto">
+                                                    <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                                        <PathIcon Data="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" Width="12" Height="12" Foreground="#66c0f4"/>
+                                                        <TextBlock Text="{Binding Downloads}" Foreground="#66c0f4" FontWeight="Bold" FontSize="12"/>
+                                                    </StackPanel>
+                                                    
+                                                    <Button Grid.Column="1" Classes="PrimaryBtn" Content="INSTALAR"/>
+                                                </Grid>
+                                            </Grid>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
 </UserControl>

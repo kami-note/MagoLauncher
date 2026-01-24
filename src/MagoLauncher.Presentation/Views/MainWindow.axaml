@@ -6,6 +6,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:converters="using:MagoLauncher.Presentation.Converters"
+        xmlns:views="using:MagoLauncher.Presentation.Views"
         mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
         x:Class="MagoLauncher.Presentation.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
@@ -41,11 +42,7 @@
         <converters:ActiveViewToForegroundConverter x:Key="ActiveViewToForegroundConverter"/>
         <converters:ActiveViewToUnderlineConverter x:Key="ActiveViewToUnderlineConverter"/>
     </Window.Resources>
-
-    <Design.DataContext>
-        <vm:MainWindowViewModel/>
-    </Design.DataContext>
-
+        
     <Grid RowDefinitions="40, *">
         <!-- Main Application Header (Steam Top Bar) -->
         <Border Grid.Row="0" Background="{StaticResource SteamHeaderBackground}" Padding="16,0">
@@ -103,7 +100,12 @@
         </Border>
 
         <!-- Content Area -->
-        <ContentControl Grid.Row="1" Content="{Binding CurrentPage}" />
+        <TransitioningContentControl Grid.Row="1" Content="{Binding CurrentPage}">
+            <TransitioningContentControl.PageTransition>
+                <CrossFade Duration="0:0:0.25" />
+            </TransitioningContentControl.PageTransition>
+        </TransitioningContentControl>
+        
     </Grid>
 </Window>
 

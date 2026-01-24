@@ -3,91 +3,226 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:MagoLauncher.Presentation.ViewModels"
+             xmlns:material="using:Material.Icons.Avalonia"
              mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
              x:Class="MagoLauncher.Presentation.Views.ModpackDetailView"
              x:DataType="vm:ModpackDetailViewModel">
 
     <UserControl.Styles>
+        <!-- Background Gradient -->
+        <Style Selector="Grid.MainContainer">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                        <GradientStop Color="#0f1219" Offset="0"/>
+                        <GradientStop Color="#16202d" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Typography -->
         <Style Selector="TextBlock.H1">
             <Setter Property="FontSize" Value="32"/>
-            <Setter Property="FontWeight" Value="Heavy"/>
+            <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="#ffffff"/>
+            <Setter Property="LetterSpacing" Value="0.5"/>
+            <Setter Property="Effect" Value="drop-shadow(0 2 10 #000000)"/>
         </Style>
+
+        <Style Selector="TextBlock.SectionTitle">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#e1e6eb"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+        </Style>
+
+        <!-- Buttons -->
         <Style Selector="Button.BackBtn">
-            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Background" Value="#1c2533"/>
             <Setter Property="Foreground" Value="#8b929a"/>
-            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="CornerRadius" Value="20"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#2a3849"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.2"/>
+                    <BrushTransition Property="Foreground" Duration="0:0:0.2"/>
+                </Transitions>
+            </Setter>
         </Style>
         <Style Selector="Button.BackBtn:pointerover">
+            <Setter Property="Background" Value="#2a3849"/>
             <Setter Property="Foreground" Value="White"/>
         </Style>
-        <Style Selector="Button.ActionBtn">
+
+        <Style Selector="Button.PrimaryBtn">
             <Setter Property="Background" Value="#66c0f4"/>
             <Setter Property="Foreground" Value="#0f1219"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Padding" Value="24,10"/>
+            <Setter Property="Padding" Value="32,12"/>
             <Setter Property="CornerRadius" Value="4"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.2"/>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Button.PrimaryBtn:pointerover">
+            <Setter Property="Background" Value="#8ad4ff"/>
+            <Setter Property="RenderTransform" Value="translateY(-1px)"/>
+        </Style>
+        <Style Selector="Button.PrimaryBtn:pressed">
+            <Setter Property="RenderTransform" Value="translateY(1px)"/>
+        </Style>
+
+        <!-- Tags -->
+        <Style Selector="Border.TagChip">
+            <Setter Property="Background" Value="#2a3849"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+        </Style>
+        <Style Selector="TextBlock.TagText">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#66c0f4"/>
+            <Setter Property="FontWeight" Value="Medium"/>
         </Style>
     </UserControl.Styles>
 
     <!-- Main Container -->
-    <Grid Background="#1b2838">
+    <Grid Classes="MainContainer" RowDefinitions="400, *">
         
-        <!-- Content -->
-        <!-- Using explicit RowDefinitions to ensure layout structure -->
-        <Grid RowDefinitions="300, *">
-            
-            <!-- Row 0: Header / Hero Area -->
-            <Grid Grid.Row="0">
-                <!-- Background Image (Dimmed) -->
-                <Image Source="{Binding Modpack.ThumbnailBitmap}" Stretch="UniformToFill" Opacity="0.3"/>
-                
-                <!-- Back Button (Top Left) -->
-                <Button Classes="BackBtn" Command="{Binding GoBackCommand}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20">
-                    <StackPanel Orientation="Horizontal" Spacing="5">
-                        <TextBlock Text="&lt;" FontWeight="Bold"/>
-                        <TextBlock Text="VOLTAR PARA LOJA"/>
-                    </StackPanel>
-                </Button>
+        <!-- Hero Background Area (Fixed Height) -->
+        <Panel Grid.Row="0" ClipToBounds="True">
+             <!-- Blurred Background -->
+             <Image Source="{Binding Modpack.ThumbnailBitmap}" Stretch="UniformToFill">
+                 <Image.Effect>
+                     <BlurEffect Radius="40"/>
+                 </Image.Effect>
+             </Image>
+             <!-- Dark Overlay for Readability -->
+             <Rectangle Fill="#0f1219" Opacity="0.5"/>
+             
+             <!-- Gradient Fade at Bottom to merge with body -->
+             <Border VerticalAlignment="Bottom" Height="200">
+                 <Border.Background>
+                     <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                         <GradientStop Color="#000f1219" Offset="0"/>
+                         <GradientStop Color="#0f1219" Offset="1"/>
+                     </LinearGradientBrush>
+                 </Border.Background>
+             </Border>
+        </Panel>
 
-                <!-- Header Content (Bottom Left) -->
-                <StackPanel VerticalAlignment="Bottom" Margin="40,0,0,20" Spacing="10">
-                    <Grid ColumnDefinitions="Auto, Auto" RowDefinitions="Auto">
-                         <!-- Cover Image Mini -->
-                         <Image Grid.Column="0" Source="{Binding Modpack.ThumbnailBitmap}" Width="150" Height="150" Margin="0,0,20,0" VerticalAlignment="Bottom"/>
-                         
-                         <!-- Title and Author -->
-                         <StackPanel Grid.Column="1" VerticalAlignment="Bottom">
-                             <TextBlock Text="{Binding Modpack.Name}" Classes="H1"/>
-                             <TextBlock Text="{Binding Modpack.Author, StringFormat='Por: {0}'}" FontSize="14" Foreground="#cccccc"/>
-                             <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,10,0,0">
-                                 <TextBlock Text="{Binding Modpack.MinecraftVersion}" Foreground="#8b929a" Background="#2a3849" Padding="5,2"/>
-                                 <TextBlock Text="{Binding Modpack.Version}" Foreground="#8b929a" Background="#2a3849" Padding="5,2"/>
-                             </StackPanel>
-                         </StackPanel>
-                    </Grid>
+        <!-- Navigation Bar (Floating) -->
+        <Grid Grid.Row="0" VerticalAlignment="Top" Margin="40,30">
+            <Button Classes="BackBtn" Command="{Binding GoBackCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <material:MaterialIcon Kind="ArrowLeft" Width="16" Height="16"/>
+                    <TextBlock Text="Voltar para Loja" VerticalAlignment="Center" FontSize="12" FontWeight="Bold"/>
                 </StackPanel>
-            </Grid>
-            
-            <!-- Row 1: Details / Description -->
-            <Grid Grid.Row="1" Margin="40">
-                 <StackPanel Spacing="20">
-                     <!-- Action Bar -->
-                     <StackPanel Orientation="Horizontal" Spacing="20">
-                         <Button Classes="ActionBtn" Command="{Binding InstallCommand}" Content="INSTALAR"/>
-                         <TextBlock Text="{Binding Modpack.Downloads, StringFormat='Downloads: {0}'}" VerticalAlignment="Center" Foreground="#8b929a"/>
+            </Button>
+        </Grid>
+
+        <!-- Header Content (Overlapping Hero and Body) -->
+        <Grid Grid.Row="0" VerticalAlignment="Bottom" Margin="40,0,40,40" ColumnDefinitions="Auto, *">
+             <!-- Cover Image (Shadowed) -->
+             <Border Grid.Column="0" CornerRadius="8" BoxShadow="0 20 40 0 #00000080" Margin="0,0,32,0">
+                 <Border CornerRadius="8" ClipToBounds="True">
+                     <Image Source="{Binding Modpack.ThumbnailBitmap}" Width="160" Height="220" Stretch="UniformToFill"/>
+                 </Border>
+             </Border>
+             
+             <!-- Text Info -->
+             <StackPanel Grid.Column="1" VerticalAlignment="Bottom" Spacing="8">
+                 <Border Classes="TagChip" HorizontalAlignment="Left" Background="#66c0f4">
+                     <TextBlock Text="MODPACK" Classes="TagText" Foreground="#0f1219" FontWeight="Bold" FontSize="10"/>
+                 </Border>
+                 
+                 <TextBlock Text="{Binding Modpack.Name}" Classes="H1"/>
+                 
+                 <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,12">
+                     <TextBlock Text="Por" Foreground="#8b929a"/>
+                     <TextBlock Text="{Binding Modpack.Author}" Foreground="#66c0f4" FontWeight="Bold"/>
+                 </StackPanel>
+                 
+                 <StackPanel Orientation="Horizontal" Spacing="8">
+                     <Border Classes="TagChip">
+                         <TextBlock Text="{Binding Modpack.MinecraftVersion, StringFormat='Minecraft {0}'}" Classes="TagText"/>
+                     </Border>
+                     <Border Classes="TagChip">
+                         <TextBlock Text="{Binding Modpack.Version, StringFormat='v{0}'}" Classes="TagText"/>
+                     </Border>
+                     <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center" Margin="12,0,0,0">
+                         <material:MaterialIcon Kind="DownloadOutline" Width="16" Height="16" Foreground="#8b929a"/>
+                         <TextBlock Text="{Binding Modpack.Downloads}" Foreground="#8b929a" FontSize="13"/>
+                         <TextBlock Text=" Downloads" Foreground="#8b929a" FontSize="13"/>
+                     </StackPanel>
+                 </StackPanel>
+             </StackPanel>
+        </Grid>
+        
+        <!-- Body Content -->
+        <Grid Grid.Row="1" Margin="40,0">
+             <ScrollViewer>
+                 <StackPanel Spacing="32" Margin="0,0,0,40">
+                     <!-- Actions -->
+                     <StackPanel Orientation="Horizontal" Spacing="16">
+                         <Button Classes="PrimaryBtn" Command="{Binding InstallCommand}">
+                             <StackPanel Orientation="Horizontal" Spacing="10">
+                                <material:MaterialIcon Kind="Download" Width="20" Height="20"/>
+                                <TextBlock Text="INSTALAR MODPACK"/>
+                             </StackPanel>
+                         </Button>
+                         <!-- Like/Share buttons placeholder -->
+                         <Button Background="#2a3849" CornerRadius="4" Padding="12" BorderThickness="0" Cursor="Hand">
+                             <material:MaterialIcon Kind="HeartOutline" Width="20" Height="20" Foreground="#8b929a"/>
+                         </Button>
+                         <Button Background="#2a3849" CornerRadius="4" Padding="12" BorderThickness="0" Cursor="Hand">
+                             <material:MaterialIcon Kind="ShareVariant" Width="20" Height="20" Foreground="#8b929a"/>
+                         </Button>
                      </StackPanel>
                      
-                     <!-- Description -->
-                     <TextBlock Text="SOBRE ESTE MODPACK" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,20,0,10"/>
-                     <TextBlock Text="{Binding Modpack.Description, FallbackValue='Sem descrição.'}" TextWrapping="Wrap" Foreground="#b8c0c9"/>
+                     <Rectangle Height="1" Fill="#2a3849"/>
+                     
+                     <!-- Description Column -->
+                     <Grid ColumnDefinitions="*, 300">
+                         <StackPanel Grid.Column="0" Spacing="16" Margin="0,0,40,0">
+                             <TextBlock Text="SOBRE ESTE MODPACK" Classes="SectionTitle"/>
+                             <TextBlock Text="{Binding Modpack.Description, FallbackValue='Sem descrição disponível para este modpack.'}" 
+                                        FontSize="15" LineHeight="26" TextWrapping="Wrap" Foreground="#b8c0c9"/>
+                         </StackPanel>
+                         
+                         <!-- Sidebar Info (Optional metadata) -->
+                         <StackPanel Grid.Column="1" Spacing="16">
+                             <Border Background="#1c2533" CornerRadius="8" Padding="20">
+                                 <StackPanel Spacing="12">
+                                     <TextBlock Text="DETALHES" FontWeight="Bold" Foreground="White" FontSize="12"/>
+                                     
+                                     <Grid ColumnDefinitions="*, Auto">
+                                         <TextBlock Text="Última Atualização" Foreground="#8b929a" FontSize="13"/>
+                                         <TextBlock Grid.Column="1" Text="24 Jan, 2026" Foreground="#e1e6eb" FontSize="13"/>
+                                     </Grid>
+                                     <Rectangle Height="1" Fill="#2a3849"/>
+                                     
+                                     <Grid ColumnDefinitions="*, Auto">
+                                         <TextBlock Text="Tamanho" Foreground="#8b929a" FontSize="13"/>
+                                         <TextBlock Grid.Column="1" Text="~250 MB" Foreground="#e1e6eb" FontSize="13"/>
+                                     </Grid>
+                                 </StackPanel>
+                             </Border>
+                         </StackPanel>
+                     </Grid>
                  </StackPanel>
-            </Grid>
-
+             </ScrollViewer>
         </Grid>
+
     </Grid>
 
 </UserControl>

@@ -9,93 +9,219 @@
              x:Class="MagoLauncher.Presentation.Controls.GameDetailView">
 
     <UserControl.Styles>
+        <!-- Background Gradient -->
+        <Style Selector="Grid.MainContainer">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                        <GradientStop Color="#0f1219" Offset="0"/>
+                        <GradientStop Color="#16202d" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Play Button (Steam Green) -->
         <Style Selector="Button.PlayButton">
-            <Setter Property="Background" Value="#a4d007"/> <!-- Steam Green -->
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,0%">
+                        <GradientStop Color="#a4d007" Offset="0"/>
+                        <GradientStop Color="#53910b" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontSize" Value="20"/>
             <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="48,16"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+
+                    <BrushTransition Property="Background" Duration="0:0:0.2"/>
+                </Transitions>
+            </Setter>
         </Style>
-        <Style Selector="Button.PlayButton:pointerover /template/ ContentPresenter">
+        <Style Selector="Button.PlayButton:pointerover">
             <Setter Property="Background" Value="#b7e510"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="RenderTransform" Value="translateY(-1px)"/>
         </Style>
-        <Style Selector="Button.PlayButton:disabled /template/ ContentPresenter">
+        <Style Selector="Button.PlayButton:pressed">
+            <Setter Property="RenderTransform" Value="translateY(1px)"/>
+        </Style>
+        <Style Selector="Button.PlayButton:disabled">
             <Setter Property="Background" Value="#3d4450"/>
             <Setter Property="Foreground" Value="#8b929a"/>
         </Style>
+        
+        <!-- Tab Headers -->
+        <Style Selector="RadioButton.TabHeader">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#8b929a"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="0,0,0,8"/>
+            <Setter Property="Margin" Value="0,0,24,0"/>
+            <Setter Property="BorderThickness" Value="0,0,0,3"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Background="{TemplateBinding Background}" 
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter Content="{TemplateBinding Content}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+        <Style Selector="RadioButton.TabHeader:pointerover">
+            <Setter Property="Foreground" Value="#e1e6eb"/>
+        </Style>
+        <Style Selector="RadioButton.TabHeader:checked">
+            <Setter Property="Foreground" Value="#66c0f4"/>
+            <Setter Property="BorderBrush" Value="#66c0f4"/>
+        </Style>
+        
+        <!-- Stat Labels -->
+        <Style Selector="TextBlock.StatLabel">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#6a7683"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+        <Style Selector="TextBlock.StatValue">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="#e1e6eb"/>
+        </Style>
     </UserControl.Styles>
 
-    <Grid RowDefinitions="300, *">
+    <Grid Classes="MainContainer" RowDefinitions="340, *">
         <!-- Hero/Header Section -->
-        <Grid Grid.Row="0">
-             <!-- Background Image (Placeholder Gradient for now) -->
-             <Border>
-                <Border.Background>
-                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
-                        <GradientStop Color="#1e354e" Offset="0"/>
-                        <GradientStop Color="#00000000" Offset="1"/>
-                    </LinearGradientBrush>
-                </Border.Background>
-             </Border>
+        <Panel Grid.Row="0">
+             <!-- Background Image (Blurred) -->
+             <Panel ClipToBounds="True">
+                 <Image Source="{Binding SelectedInstance.IconPath, FallbackValue={x:Null}}" 
+                        Stretch="UniformToFill">
+                     <Image.Effect>
+                         <BlurEffect Radius="60"/>
+                     </Image.Effect>
+                 </Image>
+                 <!-- Dark Overlay -->
+                 <Rectangle Fill="#0f1219" Opacity="0.4"/>
+                 <Border>
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                            <GradientStop Color="#000f1219" Offset="0"/>
+                            <GradientStop Color="#0f1219" Offset="0.8"/>
+                            <GradientStop Color="#0f1219" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                 </Border>
+             </Panel>
 
              <!-- Content Overlay -->
-             <StackPanel VerticalAlignment="Bottom" Margin="40,0,40,40">
-                 <!-- Game Logo/Title -->
-                 <TextBlock Text="{Binding SelectedInstance.Name, FallbackValue='Minecraft Instance'}" 
-                            FontSize="32" 
-                            FontWeight="Bold" 
-                            Foreground="White" 
-                            Margin="0,0,0,24"
-                            Effect="drop-shadow(2 2 4 black)"/>
-
-                 <!-- Action Bar -->
-                 <StackPanel Orientation="Horizontal" Spacing="20">
-                    <!-- Play Button -->
-                     <Button Classes="PlayButton"
-                             Command="{Binding LaunchGameCommand}" IsEnabled="{Binding !IsLoading}"
-                             Cursor="Hand"
-                             Padding="40,10"
-                             CornerRadius="2">
-                         <StackPanel Orientation="Horizontal" Spacing="8">
-                             <TextBlock Text="JOGAR"/>
-                         </StackPanel>
-                     </Button>
-
-                     <!-- Stats -->
-                     <StackPanel Orientation="Horizontal" Spacing="24" VerticalAlignment="Center">
-                         <StackPanel>
-                             <TextBlock Text="ÚLTIMA JOGADA" FontSize="10" Foreground="#8b929a" FontWeight="Bold"/>
-                             <TextBlock Text="Hoje" FontSize="12" Foreground="#c7d5e0"/>
-                         </StackPanel>
-                         <StackPanel>
-                             <TextBlock Text="TEMPO DE JOGO" FontSize="10" Foreground="#8b929a" FontWeight="Bold"/>
-                             <TextBlock Text="12 horas" FontSize="12" Foreground="#c7d5e0"/>
-                         </StackPanel>
+             <Grid ColumnDefinitions="*, Auto" VerticalAlignment="Bottom" Margin="40,0,40,24">
+                 
+                 <!-- Left: Title & Play -->
+                 <StackPanel Grid.Column="0" VerticalAlignment="Bottom">
+                     <!-- Breadcrumb / Tags -->
+                     <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,16">
+                         <Border Background="#3d4450" CornerRadius="2" Padding="6,2">
+                             <TextBlock Text="INSTITUCIONAL" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                         </Border>
                      </StackPanel>
                      
-                     <!-- Settings Icon -->
-                     <Button Background="Transparent" Padding="8" Margin="10,0,0,0">
-                         <material:MaterialIcon Kind="Cog" Width="24" Height="24" Foreground="#8b929a"/>
+                     <!-- Game Logo/Title -->
+                     <TextBlock Text="{Binding SelectedInstance.Name, FallbackValue='Selecione um Jogo'}" 
+                                FontSize="42" 
+                                FontWeight="Black" 
+                                Foreground="White" 
+                                Margin="0,0,0,32"
+                                TextWrapping="Wrap"
+                                Effect="drop-shadow(0 4 10 #000000)"/>
+
+                     <!-- Action Bar -->
+                     <StackPanel Orientation="Horizontal" Spacing="32" VerticalAlignment="Center">
+                        <!-- Play Button -->
+                         <Button Classes="PlayButton"
+                                 Command="{Binding LaunchGameCommand}" IsEnabled="{Binding !IsLoading}">
+                             <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                                 <material:MaterialIcon Kind="Play" Width="24" Height="24"/>
+                                 <TextBlock Text="JOGAR"/>
+                             </StackPanel>
+                         </Button>
+
+                         <!-- Stats -->
+                         <StackPanel Orientation="Horizontal" Spacing="32" VerticalAlignment="Center">
+                             <StackPanel>
+                                 <TextBlock Text="ÚLTIMA JOGADA" Classes="StatLabel"/>
+                                 <TextBlock Text="Hoje" Classes="StatValue"/>
+                             </StackPanel>
+                             <StackPanel>
+                                 <TextBlock Text="TEMPO DE JOGO" Classes="StatLabel"/>
+                                 <TextBlock Text="12 horas" Classes="StatValue"/>
+                             </StackPanel>
+                             <StackPanel>
+                                 <TextBlock Text="CONQUISTAS" Classes="StatLabel"/>
+                                 <TextBlock Text="8 / 32" Classes="StatValue"/>
+                             </StackPanel>
+                         </StackPanel>
+                     </StackPanel>
+                 </StackPanel>
+                 
+                 <!-- Right: Settings / Extras -->
+                 <StackPanel Grid.Column="1" VerticalAlignment="Bottom" Spacing="12">
+                     <Button Background="#1c2533" Padding="12" CornerRadius="4" BorderThickness="0" Cursor="Hand" ToolTip.Tip="Configurações">
+                         <material:MaterialIcon Kind="Cog" Width="20" Height="20" Foreground="#8b929a"/>
+                     </Button>
+                     <Button Background="#1c2533" Padding="12" CornerRadius="4" BorderThickness="0" Cursor="Hand" ToolTip.Tip="Favorito">
+                         <material:MaterialIcon Kind="StarOutline" Width="20" Height="20" Foreground="#8b929a"/>
                      </Button>
                  </StackPanel>
-             </StackPanel>
-        </Grid>
+                 
+             </Grid>
+        </Panel>
 
-        <!-- Instance Details / Activity Feed (Placeholder) -->
-        <Border Grid.Row="1" Background="{StaticResource SteamDarkBackground}" Padding="40,20">
-            <StackPanel Spacing="16">
-                 <!-- Tabs -->
-                <StackPanel Orientation="Horizontal" Spacing="24">
-                    <TextBlock Text="ATIVIDADE" FontWeight="Bold" Foreground="White" FontSize="14"/>
-                    <TextBlock Text="COMUNIDADE" FontWeight="Bold" Foreground="{StaticResource SteamTextSecondary}" FontSize="14"/>
-                    <TextBlock Text="GUIAS" FontWeight="Bold" Foreground="{StaticResource SteamTextSecondary}" FontSize="14"/>
+        <!-- Instance Details / Activity Feed -->
+        <Grid Grid.Row="1" Margin="40,0">
+            <Grid RowDefinitions="Auto, *">
+                
+                <!-- Navbar -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,10,0,20">
+                    <RadioButton Classes="TabHeader" Content="ATIVIDADE" IsChecked="True" GroupName="DetailsTabs"/>
+                    <RadioButton Classes="TabHeader" Content="COMUNIDADE" GroupName="DetailsTabs"/>
+                    <RadioButton Classes="TabHeader" Content="GUIAS" GroupName="DetailsTabs"/>
+                    <RadioButton Classes="TabHeader" Content="SUPORTE" GroupName="DetailsTabs"/>
                 </StackPanel>
                 
-                <Rectangle Height="1" Fill="#3d4450"/>
-                
-                <TextBlock Text="Nenhuma atividade recente." Foreground="{StaticResource SteamTextSecondary}" Margin="0,20,0,0"/>
-            </StackPanel>
-        </Border>
+                <!-- Content Area -->
+                <ScrollViewer Grid.Row="1">
+                    <StackPanel Spacing="16" Margin="0,0,0,40">
+                        <!-- Example Activity Item -->
+                        <Border Background="#1c2533" CornerRadius="4" Padding="20">
+                            <StackPanel Spacing="12">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <material:MaterialIcon Kind="Calendar" Width="16" Height="16" Foreground="#66c0f4"/>
+                                    <TextBlock Text="ATUALIZAÇÃO RECENTE" FontSize="11" FontWeight="Bold" Foreground="#66c0f4"/>
+                                </StackPanel>
+                                <TextBlock Text="Notas de Atualização - Versão 2.5" FontSize="18" FontWeight="Bold" Foreground="#e1e6eb"/>
+                                <TextBlock Text="Melhorias de performance e correção de bugs na nova versão do modpack." Foreground="#8b929a" TextWrapping="Wrap"/>
+                                <Button Content="LER MAIS" Background="Transparent" Foreground="#e1e6eb" HorizontalAlignment="Left" Padding="0"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Empty State if needed -->
+                        <TextBlock Text="Mais atividades aparecerão aqui conforme você joga." 
+                                   Foreground="#3d4450" HorizontalAlignment="Center" Margin="0,40"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
     </Grid>
 </UserControl>

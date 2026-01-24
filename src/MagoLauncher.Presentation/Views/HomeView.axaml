@@ -13,7 +13,7 @@
         <controls:Sidebar Grid.Column="0" Margin="0,0,1,0"/>
         
         <!-- Separator -->
-        <Rectangle Grid.Column="0" HorizontalAlignment="Right" Width="1" Fill="Black"/>
+        <Rectangle Grid.Column="0" HorizontalAlignment="Right" Width="1" Fill="#1c2533"/>
 
         <!-- Main Game View -->
         <controls:GameDetailView Grid.Column="1"/>

@@ -1,3 +1,7 @@
 [24/01/2026 17:34:02] Program.Main Started
 [24/01/2026 17:34:02] Calling BuildAvaloniaApp
 [24/01/2026 17:34:02] BuildAvaloniaApp returned, calling StartWithClassicDesktopLifetime
+[24/01/2026 17:37:07] StartWithClassicDesktopLifetime returned (App Exiting)
+[24/01/2026 17:37:47] Program.Main Started
+[24/01/2026 17:37:47] Calling BuildAvaloniaApp
+[24/01/2026 17:37:47] BuildAvaloniaApp returned, calling StartWithClassicDesktopLifetime

@@ -198,36 +198,15 @@
                     <RadioButton Classes="TabHeader" Content="COMUNIDADE" GroupName="DetailsTabs"/>
                     <RadioButton Classes="TabHeader" Content="GUIAS" GroupName="DetailsTabs"/>
                     <RadioButton Classes="TabHeader" Content="SUPORTE" GroupName="DetailsTabs"/>
-                    <RadioButton Name="TabChangelogs" Classes="TabHeader" Content="MUDANÇAS" GroupName="DetailsTabs"
-                                 IsVisible="{Binding !!SelectedInstance.Metadata}"/>
+
                     <RadioButton Name="TabConsole" Classes="TabHeader" Content="CONSOLE" GroupName="DetailsTabs"/>
                 </StackPanel>
                 
                 <!-- Content Area -->
                 <ScrollViewer Grid.Row="1">
                     <Panel>
-                        <!-- Activity Content -->
+                         <!-- Activity Content -->
                         <StackPanel Spacing="16" Margin="0,0,0,40" IsVisible="{Binding #TabActivity.IsChecked}">
-                            <!-- Example Activity Item -->
-                            <Border Background="#1c2533" CornerRadius="4" Padding="20">
-                                <StackPanel Spacing="12">
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <material:MaterialIcon Kind="Calendar" Width="16" Height="16" Foreground="#66c0f4"/>
-                                        <TextBlock Text="ATUALIZAÇÃO RECENTE" FontSize="11" FontWeight="Bold" Foreground="#66c0f4"/>
-                                    </StackPanel>
-                                    <TextBlock Text="Notas de Atualização - Versão 2.5" FontSize="18" FontWeight="Bold" Foreground="#e1e6eb"/>
-                                    <TextBlock Text="Melhorias de performance e correção de bugs na nova versão do modpack." Foreground="#8b929a" TextWrapping="Wrap"/>
-                                    <Button Content="LER MAIS" Background="Transparent" Foreground="#e1e6eb" HorizontalAlignment="Left" Padding="0"/>
-                                </StackPanel>
-                            </Border>
-                            
-                            <!-- Empty State if needed -->
-                            <TextBlock Text="Mais atividades aparecerão aqui conforme você joga." 
-                                       Foreground="#3d4450" HorizontalAlignment="Center" Margin="0,40"/>
-                        </StackPanel>
-
-                        <!-- Changelogs Content -->
-                        <StackPanel Spacing="16" Margin="0,0,0,40" IsVisible="{Binding #TabChangelogs.IsChecked}">
                              <ItemsControl ItemsSource="{Binding SelectedInstance.Metadata.Changelogs}">
                                  <ItemsControl.ItemTemplate>
                                      <DataTemplate>
@@ -244,8 +223,8 @@
                                      </DataTemplate>
                                  </ItemsControl.ItemTemplate>
                              </ItemsControl>
-                             <TextBlock Text="Nenhum registro de mudança encontrado." 
-                                        IsVisible="{Binding !SelectedInstance.Metadata.Changelogs.Count}"
+                             <TextBlock Text="Nenhuma atividade recente registrada." 
+                                        IsVisible="{Binding !SelectedInstance.Metadata.Changelogs.Count, FallbackValue=True}"
                                         Foreground="#3d4450" HorizontalAlignment="Center" Margin="0,40"/>
                         </StackPanel>
 

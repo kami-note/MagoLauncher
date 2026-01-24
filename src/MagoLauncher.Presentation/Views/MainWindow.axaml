@@ -5,6 +5,7 @@
         xmlns:material="using:Material.Icons.Avalonia"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:converters="using:MagoLauncher.Presentation.Converters"
         mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
         x:Class="MagoLauncher.Presentation.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
@@ -18,6 +19,29 @@
         ExtendClientAreaTitleBarHeightHint="40"
         Background="{StaticResource SteamDarkBackground}">
 
+    <Window.Styles>
+        <Style Selector="Button.TopBarNavButton">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.TopBarNavButton TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{StaticResource SteamTextSecondary}"/>
+        </Style>
+        <Style Selector="Button.TopBarNavButton:pointerover TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+    </Window.Styles>
+
+    <Window.Resources>
+        <converters:ActiveViewToForegroundConverter x:Key="ActiveViewToForegroundConverter"/>
+        <converters:ActiveViewToUnderlineConverter x:Key="ActiveViewToUnderlineConverter"/>
+    </Window.Resources>
+
     <Design.DataContext>
         <vm:MainWindowViewModel/>
     </Design.DataContext>
@@ -27,15 +51,27 @@
         <Border Grid.Row="0" Background="{StaticResource SteamHeaderBackground}" Padding="16,0">
             <Grid ColumnDefinitions="Auto, *, Auto">
                 <!-- Navigation Links (Store, Library, etc) -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="24" VerticalAlignment="Center">
-                    <!-- Menu Buttons (Window controls are handled by OS/Chrome usually but we add space) -->
-                </StackPanel>
-                
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="32" VerticalAlignment="Center" Margin="0,0,0,0">
-                    <TextBlock Text="LOJA" FontSize="14" FontWeight="Bold" Foreground="{StaticResource SteamTextSecondary}" Cursor="Hand"/>
-                    <TextBlock Text="BIBLIOTECA" FontSize="14" FontWeight="Bold" Foreground="{StaticResource SteamTextPrimary}" TextDecorations="Underline" Cursor="Hand"/>
-                    <TextBlock Text="COMUNIDADE" FontSize="14" FontWeight="Bold" Foreground="{StaticResource SteamTextSecondary}" Cursor="Hand"/>
-                    <TextBlock Text="USUÁRIO" FontSize="14" FontWeight="Bold" Foreground="{StaticResource SteamTextSecondary}" Cursor="Hand"/>
+                    <Button Classes="TopBarNavButton" Command="{Binding GoToStoreCommand}">
+                        <TextBlock Text="LOJA" 
+                                   Foreground="{Binding ActiveView, Converter={StaticResource ActiveViewToForegroundConverter}, ConverterParameter=Store}"
+                                   TextDecorations="{Binding ActiveView, Converter={StaticResource ActiveViewToUnderlineConverter}, ConverterParameter=Store}"/>
+                    </Button>
+                    <Button Classes="TopBarNavButton" Command="{Binding GoToHomeCommand}">
+                        <TextBlock Text="BIBLIOTECA" 
+                                   Foreground="{Binding ActiveView, Converter={StaticResource ActiveViewToForegroundConverter}, ConverterParameter=Home}"
+                                   TextDecorations="{Binding ActiveView, Converter={StaticResource ActiveViewToUnderlineConverter}, ConverterParameter=Home}"/>
+                    </Button>
+                    <Button Classes="TopBarNavButton"> <!-- Community -->
+                        <TextBlock Text="COMUNIDADE" 
+                                   Foreground="{Binding ActiveView, Converter={StaticResource ActiveViewToForegroundConverter}, ConverterParameter=Community}"
+                                   TextDecorations="{Binding ActiveView, Converter={StaticResource ActiveViewToUnderlineConverter}, ConverterParameter=Community}"/>
+                    </Button>
+                    <Button Classes="TopBarNavButton"> <!-- User -->
+                        <TextBlock Text="USUÁRIO" 
+                                   Foreground="{Binding ActiveView, Converter={StaticResource ActiveViewToForegroundConverter}, ConverterParameter=User}"
+                                   TextDecorations="{Binding ActiveView, Converter={StaticResource ActiveViewToUnderlineConverter}, ConverterParameter=User}"/>
+                    </Button>
                 </StackPanel>
 
                  <!-- User Profile / Window Controls Area -->
@@ -67,18 +103,7 @@
         </Border>
 
         <!-- Content Area -->
-        <Grid Grid.Row="1" ColumnDefinitions="260, *">
-            
-            <!-- Sidebar (Game List) -->
-            <controls:Sidebar Grid.Column="0" Margin="0,0,1,0"/>
-            
-            <!-- Separator -->
-            <Rectangle Grid.Column="0" HorizontalAlignment="Right" Width="1" Fill="Black"/>
-
-            <!-- Main Game View -->
-            <controls:GameDetailView Grid.Column="1"/>
-            
-        </Grid>
+        <ContentControl Grid.Row="1" Content="{Binding CurrentPage}" />
     </Grid>
 </Window>
 

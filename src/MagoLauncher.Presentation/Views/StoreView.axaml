@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:MagoLauncher.Presentation.ViewModels"
+             xmlns:models="using:MagoLauncher.Presentation.Models"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="MagoLauncher.Presentation.Views.StoreView"
+             x:DataType="vm:StoreViewModel">
+    <Design.DataContext>
+        <vm:StoreViewModel/>
+    </Design.DataContext>
+
+    <ScrollViewer>
+        <ItemsControl ItemsSource="{Binding Modpacks}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="models:Modpack">
+                    <Border CornerRadius="4"
+                            Background="#2a2d32"
+                            Margin="10"
+                            Width="200">
+                        <StackPanel>
+                            <Image Source="{Binding ThumbnailBitmap}" Height="100" Stretch="UniformToFill" />
+                            <TextBlock Text="{Binding Name}" FontWeight="Bold" Margin="10,5" />
+                            <TextBlock Text="{Binding Author}" Margin="10,0,10,10" />
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </ScrollViewer>
+</UserControl>

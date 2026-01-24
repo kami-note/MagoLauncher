@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace MagoLauncher.Presentation.Models
 {
-    public class Modpack : ObservableObject
+    public partial class Modpack : ObservableObject
     {
         public string? Id { get; set; }
         public string? Name { get; set; }
@@ -26,6 +26,12 @@ namespace MagoLauncher.Presentation.Models
             get => _thumbnailBitmap;
             set => SetProperty(ref _thumbnailBitmap, value);
         }
+
+        [ObservableProperty]
+        private bool _isInstalled;
+
+        [ObservableProperty]
+        private Guid? _instanceId;
 
         public System.Collections.Generic.List<Application.DTOs.ModpackChangelogDto>? Changelogs { get; set; }
     }

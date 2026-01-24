@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using System.IO;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MagoLauncher.Presentation.ViewModels
 {
@@ -24,11 +26,13 @@ namespace MagoLauncher.Presentation.ViewModels
 
         private readonly MainWindowViewModel _mainWindowViewModel;
         private readonly INotificationService _notificationService;
+        private readonly IMinecraftInstanceService _instanceService;
 
-        public StoreViewModel(MainWindowViewModel mainWindowViewModel, INotificationService notificationService)
+        public StoreViewModel(MainWindowViewModel mainWindowViewModel, INotificationService notificationService, IMinecraftInstanceService instanceService)
         {
             _notificationService = notificationService;
             _mainWindowViewModel = mainWindowViewModel;
+            _instanceService = instanceService;
             _httpClient = new HttpClient();
             _modpacks = new ObservableCollection<Modpack>();
             _ = LoadModpacks();
@@ -39,6 +43,7 @@ namespace MagoLauncher.Presentation.ViewModels
             // Design-time constructor
             _mainWindowViewModel = null!;
             _notificationService = null!;
+            _instanceService = null!;
             _httpClient = new HttpClient();
             _modpacks = new ObservableCollection<Modpack>();
         }
@@ -55,6 +60,29 @@ namespace MagoLauncher.Presentation.ViewModels
 
                 if (modpacks != null)
                 {
+                    // Check installed instances
+                    IEnumerable<MagoLauncher.Domain.Entities.MinecraftInstance> instances = new List<MagoLauncher.Domain.Entities.MinecraftInstance>();
+                    try
+                    {
+                        instances = await _instanceService.GetAllInstancesAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Console.WriteLine($"Error fetching instances: {ex.Message}");
+                    }
+
+                    foreach (var modpack in modpacks)
+                    {
+                        var installedInstance = instances.FirstOrDefault(i =>
+                            string.Equals(i.Metadata?.Slug, modpack.Slug, StringComparison.OrdinalIgnoreCase));
+
+                        if (installedInstance != null)
+                        {
+                            modpack.IsInstalled = true;
+                            modpack.InstanceId = installedInstance.Id;
+                        }
+                    }
+
                     Modpacks = modpacks;
                     foreach (var modpack in Modpacks)
                     {

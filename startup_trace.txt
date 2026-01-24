@@ -5,3 +5,18 @@
 [24/01/2026 17:37:47] Program.Main Started
 [24/01/2026 17:37:47] Calling BuildAvaloniaApp
 [24/01/2026 17:37:47] BuildAvaloniaApp returned, calling StartWithClassicDesktopLifetime
+[24/01/2026 17:43:56] StartWithClassicDesktopLifetime returned (App Exiting)
+[24/01/2026 17:47:23] Program.Main Started
+[24/01/2026 17:47:23] Calling BuildAvaloniaApp
+[24/01/2026 17:47:26] BuildAvaloniaApp returned, calling StartWithClassicDesktopLifetime
+[24/01/2026 17:51:00] StartWithClassicDesktopLifetime returned (App Exiting)
+[24/01/2026 17:51:04] Program.Main Started
+[24/01/2026 17:51:04] Calling BuildAvaloniaApp
+[24/01/2026 17:51:04] BuildAvaloniaApp returned, calling StartWithClassicDesktopLifetime
+[24/01/2026 17:52:01] Program.Main Started
+[24/01/2026 17:52:01] Calling BuildAvaloniaApp
+[24/01/2026 17:52:01] BuildAvaloniaApp returned, calling StartWithClassicDesktopLifetime
+[24/01/2026 17:52:43] StartWithClassicDesktopLifetime returned (App Exiting)
+[24/01/2026 17:54:34] Program.Main Started
+[24/01/2026 17:54:34] Calling BuildAvaloniaApp
+[24/01/2026 17:54:34] BuildAvaloniaApp returned, calling StartWithClassicDesktopLifetime

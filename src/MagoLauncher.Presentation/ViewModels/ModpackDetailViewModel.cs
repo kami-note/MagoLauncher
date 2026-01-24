@@ -1,27 +1,57 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-
 using MagoLauncher.Application.Services;
 using MagoLauncher.Presentation.Models;
 using System.Threading.Tasks;
+using System; // Added for StringComparison
+using System.Linq; // Restored for FirstOrDefault
 
 namespace MagoLauncher.Presentation.ViewModels;
 
 public partial class ModpackDetailViewModel : ViewModelBase
 {
-    private readonly MainWindowViewModel _mainWindowViewModel;
+    private readonly MainWindowViewModel _mainWindowViewModel; // Restored
     private readonly IModpackService _modpackService;
     private readonly INotificationService _notificationService;
+    private readonly IMinecraftInstanceService _instanceService;
 
     [ObservableProperty]
     private Modpack _modpack;
 
-    public ModpackDetailViewModel(MainWindowViewModel mainWindowViewModel, Modpack modpack, IModpackService modpackService, INotificationService notificationService)
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsNotInstalled))]
+    private bool _isInstalled;
+
+    public bool IsNotInstalled => !IsInstalled;
+
+    public ModpackDetailViewModel(MainWindowViewModel mainWindowViewModel, Modpack modpack, IModpackService modpackService, INotificationService notificationService, IMinecraftInstanceService instanceService)
     {
         _mainWindowViewModel = mainWindowViewModel;
         _modpack = modpack;
         _modpackService = modpackService;
         _notificationService = notificationService;
+        _instanceService = instanceService;
+
+        IsInstalled = modpack.IsInstalled;
+
+        // If passed modpack status was stale, double check (optional, but good for direct deep linking)
+        _ = CheckInstallationStatus();
+    }
+
+    private async Task CheckInstallationStatus()
+    {
+        if (_instanceService == null) return;
+        var instances = await _instanceService.GetAllInstancesAsync();
+
+        var installedInstance = instances.FirstOrDefault(i =>
+            string.Equals(i.Metadata?.Slug, Modpack.Slug, StringComparison.OrdinalIgnoreCase));
+
+        if (installedInstance != null)
+        {
+            IsInstalled = true;
+            Modpack.IsInstalled = true;
+            Modpack.InstanceId = installedInstance.Id;
+        }
     }
 
     // Default constructor for design preview
@@ -30,6 +60,7 @@ public partial class ModpackDetailViewModel : ViewModelBase
         _mainWindowViewModel = new MainWindowViewModel();
         _modpackService = null!;
         _notificationService = null!;
+        _instanceService = null!;
         _modpack = new Modpack
         {
             Name = "Modpack Exemplo",
@@ -47,6 +78,20 @@ public partial class ModpackDetailViewModel : ViewModelBase
         _mainWindowViewModel.GoToStore();
     }
 
+    [RelayCommand]
+    public void Play()
+    {
+        if (Modpack.InstanceId.HasValue)
+        {
+            // Ideally we'd navigate to the game detail view or launch it.
+            // For now, let's navigate to the details in the Home view.
+            _mainWindowViewModel.GoToHome();
+            // You might need a way to select the instance in the HomeViewModel. 
+            // This might require passing the ID or handling it via a shared service or message.
+            // For this task, getting it "identified" is the priority.
+        }
+    }
+
 
     [ObservableProperty]
     private double _downloadProgress;
@@ -57,6 +102,12 @@ public partial class ModpackDetailViewModel : ViewModelBase
     [RelayCommand]
     public async Task Install()
     {
+        if (IsInstalled)
+        {
+            Play();
+            return;
+        }
+
         if (_modpackService == null || Modpack == null) return;
         if (IsDownloading) return;
 

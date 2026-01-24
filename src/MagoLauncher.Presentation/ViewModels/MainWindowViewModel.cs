@@ -28,13 +28,15 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private readonly IModpackService _modpackService;
     private readonly INotificationService _notificationService;
+    private readonly IMinecraftInstanceService _instanceService;
 
     public MainWindowViewModel(IMinecraftInstanceService instanceService, IModpackService modpackService, INotificationService notificationService)
     {
         _notificationService = notificationService;
         _modpackService = modpackService;
+        _instanceService = instanceService;
         _settingsPage = new SettingsViewModel();
-        _storePage = new StoreViewModel(this, _notificationService);
+        _storePage = new StoreViewModel(this, _notificationService, _instanceService);
         // Pass dependencies to HomeViewModel
         _homePage = new HomeViewModel(instanceService, _settingsPage, this);
 
@@ -47,6 +49,7 @@ public partial class MainWindowViewModel : ViewModelBase
         // Constructor for design-time preview
         _modpackService = null!;
         _notificationService = null!;
+        _instanceService = null!;
         _settingsPage = new SettingsViewModel();
         _storePage = new StoreViewModel();
         _homePage = new HomeViewModel(null!, _settingsPage, this);
@@ -78,7 +81,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public void GoToModpackDetails(Models.Modpack modpack)
     {
-        CurrentPage = new ModpackDetailViewModel(this, modpack, _modpackService, _notificationService);
+        CurrentPage = new ModpackDetailViewModel(this, modpack, _modpackService, _notificationService, _instanceService);
         ActiveView = "Store"; // Keep "Store" active in sidebar
     }
 }

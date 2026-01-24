@@ -271,6 +271,20 @@
                                                         <PathIcon Data="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z" 
                                                                   Width="40" Height="40" Foreground="#3d4f63"/>
                                                     </Border>
+                                                    
+                                                    <!-- Installed Badge -->
+                                                    <Border Background="#CC4CAF50" 
+                                                            CornerRadius="4" 
+                                                            Padding="6,2" 
+                                                            HorizontalAlignment="Right" 
+                                                            VerticalAlignment="Top" 
+                                                            Margin="8"
+                                                            IsVisible="{Binding IsInstalled}">
+                                                        <TextBlock Text="INSTALADO" 
+                                                                   FontSize="10" 
+                                                                   FontWeight="Bold" 
+                                                                   Foreground="White"/>
+                                                    </Border>
                                                 </Panel>
                                             </Border>
                                         </Button>

@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MagoLauncher.Presentation.Models;
+using MagoLauncher.Application.Services;
 using System.Collections.ObjectModel;
 using System.Net.Http;
 using System.Text.Json;
@@ -22,9 +23,11 @@ namespace MagoLauncher.Presentation.ViewModels
         private readonly HttpClient _httpClient;
 
         private readonly MainWindowViewModel _mainWindowViewModel;
+        private readonly INotificationService _notificationService;
 
-        public StoreViewModel(MainWindowViewModel mainWindowViewModel)
+        public StoreViewModel(MainWindowViewModel mainWindowViewModel, INotificationService notificationService)
         {
+            _notificationService = notificationService;
             _mainWindowViewModel = mainWindowViewModel;
             _httpClient = new HttpClient();
             _modpacks = new ObservableCollection<Modpack>();
@@ -34,8 +37,8 @@ namespace MagoLauncher.Presentation.ViewModels
         public StoreViewModel()
         {
             // Design-time constructor
-            // Avoid creating MainWindowViewModel here to prevent circular dependency/stack overflow
             _mainWindowViewModel = null!;
+            _notificationService = null!;
             _httpClient = new HttpClient();
             _modpacks = new ObservableCollection<Modpack>();
         }
@@ -59,9 +62,9 @@ namespace MagoLauncher.Presentation.ViewModels
                     }
                 }
             }
-            catch (HttpRequestException)
+            catch (HttpRequestException ex)
             {
-                // TODO: Handle exception
+                _notificationService?.ShowError("Erro ao carregar loja", $"Não foi possível conectar ao servidor: {ex.Message}");
             }
             finally
             {
@@ -84,7 +87,8 @@ namespace MagoLauncher.Presentation.ViewModels
             }
             catch (Exception)
             {
-                // TODO: Handle image loading error
+                // Silent failure for thumbnails is acceptable, or log we can show a warning
+                // _notificationService?.ShowWarning("Aviso", $"Falha ao carregar imagem: {modpack.Name}");
             }
         }
 

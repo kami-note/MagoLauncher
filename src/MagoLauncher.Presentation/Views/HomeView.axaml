@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:MagoLauncher.Presentation.ViewModels"
              xmlns:controls="using:MagoLauncher.Presentation.Controls"
+             xmlns:views="using:MagoLauncher.Presentation.Views"
              xmlns:material="using:Material.Icons.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MagoLauncher.Presentation.Views.HomeView"
@@ -24,7 +25,7 @@
             <Rectangle Grid.Column="0" HorizontalAlignment="Right" Width="1" Fill="#1c2533"/>
 
             <!-- Main Game View -->
-            <controls:GameDetailView Grid.Column="1"/>
+            <views:GameDetailView Grid.Column="1"/>
         </Grid>
 
         <!-- Overlay / Settings Dialog -->

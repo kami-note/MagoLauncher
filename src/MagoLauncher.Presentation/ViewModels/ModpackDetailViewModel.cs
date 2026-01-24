@@ -11,15 +11,17 @@ public partial class ModpackDetailViewModel : ViewModelBase
 {
     private readonly MainWindowViewModel _mainWindowViewModel;
     private readonly IModpackService _modpackService;
+    private readonly INotificationService _notificationService;
 
     [ObservableProperty]
     private Modpack _modpack;
 
-    public ModpackDetailViewModel(MainWindowViewModel mainWindowViewModel, Modpack modpack, IModpackService modpackService)
+    public ModpackDetailViewModel(MainWindowViewModel mainWindowViewModel, Modpack modpack, IModpackService modpackService, INotificationService notificationService)
     {
         _mainWindowViewModel = mainWindowViewModel;
         _modpack = modpack;
         _modpackService = modpackService;
+        _notificationService = notificationService;
     }
 
     // Default constructor for design preview
@@ -27,6 +29,7 @@ public partial class ModpackDetailViewModel : ViewModelBase
     {
         _mainWindowViewModel = new MainWindowViewModel();
         _modpackService = null!;
+        _notificationService = null!;
         _modpack = new Modpack
         {
             Name = "Modpack Exemplo",
@@ -88,7 +91,7 @@ public partial class ModpackDetailViewModel : ViewModelBase
         }
         catch (System.Exception ex)
         {
-            // TODO: Show error
+            _notificationService?.ShowError("Falha na Instalação", $"Ocorreu um erro ao instalar o modpack: {ex.Message}");
             System.Console.WriteLine($"Install failed: {ex}");
             // Reset state on failure so user can try again
             IsDownloading = false;

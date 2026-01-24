@@ -6,7 +6,7 @@
              xmlns:vm="using:MagoLauncher.Presentation.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
              x:DataType="vm:HomeViewModel"
-             x:Class="MagoLauncher.Presentation.Controls.GameDetailView">
+             x:Class="MagoLauncher.Presentation.Views.GameDetailView">
 
     <UserControl.Styles>
         <!-- Background Gradient -->

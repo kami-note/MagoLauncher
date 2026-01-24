@@ -28,11 +28,12 @@ public partial class App : Avalonia.Application
             var httpClient = new System.Net.Http.HttpClient();
             var modpackService = new MagoLauncher.Infrastructure.Services.ModpackService(httpClient);
             var instanceService = new MagoLauncher.Infrastructure.Services.MinecraftInstanceService();
+            var settingsService = new MagoLauncher.Infrastructure.Services.SettingsService();
             var notificationService = new MagoLauncher.Presentation.Services.NotificationService();
 
             var mainWindow = new MainWindow
             {
-                DataContext = new MainWindowViewModel(instanceService, modpackService, notificationService),
+                DataContext = new MainWindowViewModel(instanceService, modpackService, notificationService, settingsService),
             };
 
             notificationService.SetHost(mainWindow);

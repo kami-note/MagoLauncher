@@ -29,19 +29,43 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IModpackService _modpackService;
     private readonly INotificationService _notificationService;
     private readonly IMinecraftInstanceService _instanceService;
+    private readonly ISettingsService _settingsService;
 
-    public MainWindowViewModel(IMinecraftInstanceService instanceService, IModpackService modpackService, INotificationService notificationService)
+    public MainWindowViewModel(IMinecraftInstanceService instanceService, IModpackService modpackService, INotificationService notificationService, ISettingsService settingsService)
     {
         _notificationService = notificationService;
         _modpackService = modpackService;
         _instanceService = instanceService;
+        _settingsService = settingsService;
+
         _settingsPage = new SettingsViewModel();
         _storePage = new StoreViewModel(this, _notificationService, _instanceService);
         // Pass dependencies to HomeViewModel
         _homePage = new HomeViewModel(instanceService, _settingsPage, this);
 
+
         _currentPage = _homePage;
         _activeView = "Home"; // Initialize active view
+
+        InitializeSettings();
+    }
+
+    private async void InitializeSettings()
+    {
+        var settings = await _settingsService.LoadSettingsAsync();
+        PlayerName = settings.PlayerName;
+    }
+
+    partial void OnPlayerNameChanged(string value)
+    {
+        _ = SavePlayerName(value);
+    }
+
+    private async Task SavePlayerName(string name)
+    {
+        var settings = await _settingsService.LoadSettingsAsync();
+        settings.PlayerName = name;
+        await _settingsService.SaveSettingsAsync(settings);
     }
 
     public MainWindowViewModel()
@@ -50,6 +74,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _modpackService = null!;
         _notificationService = null!;
         _instanceService = null!;
+        _settingsService = null!;
         _settingsPage = new SettingsViewModel();
         _storePage = new StoreViewModel();
         _homePage = new HomeViewModel(null!, _settingsPage, this);

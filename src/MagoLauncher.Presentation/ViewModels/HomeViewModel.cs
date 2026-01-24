@@ -8,11 +8,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using CommunityToolkit.Mvvm.Input;
+using System.Net.Http;
+using Avalonia.Media.Imaging;
+using System.IO;
 
 namespace MagoLauncher.Presentation.ViewModels;
 
 public partial class HomeViewModel : ViewModelBase
 {
+    private readonly HttpClient _httpClient = new();
     private readonly IMinecraftInstanceService _instanceService;
     private readonly SettingsViewModel _settingsViewModel;
     private readonly MainWindowViewModel _mainWindowViewModel;
@@ -70,6 +74,50 @@ public partial class HomeViewModel : ViewModelBase
 
     [ObservableProperty]
     private MinecraftInstance? _selectedInstance;
+
+    [ObservableProperty]
+    private Bitmap? _selectedInstanceCover;
+
+    [ObservableProperty]
+    private string _lastPlayedText = "Nunca jogado";
+
+    [ObservableProperty]
+    private string _playTimeText = "0 horas";
+
+    partial void OnSelectedInstanceChanged(MinecraftInstance? value)
+    {
+        if (value == null) return;
+
+        // Update Stats
+        if (value.LastPlayedAt == DateTime.MinValue)
+            LastPlayedText = "Nunca jogado";
+        else
+            LastPlayedText = value.LastPlayedAt.Date == DateTime.Today ? "Hoje" : value.LastPlayedAt.ToString("d");
+
+        PlayTimeText = value.PlayTimeMinutes == 0 ? "0 horas" : $"{(value.PlayTimeMinutes / 60.0):0.#} horas";
+
+        // Load Cover
+        _ = LoadInstanceCover(value);
+    }
+
+    private async Task LoadInstanceCover(MinecraftInstance instance)
+    {
+        SelectedInstanceCover = null; // Reset first
+
+        if (instance.Metadata?.ThumbnailUrl is string url && !string.IsNullOrEmpty(url))
+        {
+            try
+            {
+                var imageData = await _httpClient.GetByteArrayAsync(url);
+                using var stream = new MemoryStream(imageData);
+                SelectedInstanceCover = new Bitmap(stream);
+            }
+            catch
+            {
+                // Fallback or ignore
+            }
+        }
+    }
 
     public HomeViewModel(IMinecraftInstanceService instanceService, SettingsViewModel settingsViewModel, MainWindowViewModel mainWindowViewModel)
     {

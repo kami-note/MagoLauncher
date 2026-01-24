@@ -79,13 +79,13 @@ public partial class ModpackDetailViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    public void Play()
+    public async Task Play()
     {
         if (Modpack.InstanceId.HasValue)
         {
             // Ideally we'd navigate to the game detail view or launch it.
             // For now, let's navigate to the details in the Home view.
-            _mainWindowViewModel.GoToHome();
+            await _mainWindowViewModel.GoToHome();
             // You might need a way to select the instance in the HomeViewModel. 
             // This might require passing the ID or handling it via a shared service or message.
             // For this task, getting it "identified" is the priority.

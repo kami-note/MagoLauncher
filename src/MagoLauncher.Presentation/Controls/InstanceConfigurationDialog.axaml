@@ -76,7 +76,7 @@
                         <StackPanel Margin="0,16">
                             <RadioButton Classes="SidebarItem" Content="Geral" IsChecked="True" GroupName="SettingsNav" Name="NavGeneral"/>
                             <RadioButton Classes="SidebarItem" Content="Argumentos de Inicialização" GroupName="SettingsNav" Name="NavLaunch"/>
-                            <RadioButton Classes="SidebarItem" Content="Arquivos Instalados" GroupName="SettingsNav"/>
+                            <RadioButton Classes="SidebarItem" Content="Arquivos Instalados" GroupName="SettingsNav" Name="NavManage"/>
                         </StackPanel>
                     </Border>
 
@@ -128,6 +128,94 @@
                                     <TextBlock Text="As configurações personalizadas estão desativadas." Foreground="#8b929a"/>
                                     <Button Content="Ativar Personalização" Command="{Binding ToggleOverrideCommand}" 
                                             Background="#2a3f5a" Foreground="White" Margin="0,16,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+
+
+
+                            <!-- Installed Files View (Steam Style) -->
+                            <StackPanel IsVisible="{Binding #NavManage.IsChecked}">
+                                <TextBlock Text="ARQUIVOS LOCAIS" Classes="SectionHeader"/>
+                                
+                                <StackPanel Spacing="24">
+                                    <StackPanel Spacing="8">
+                                         <StackPanel Orientation="Horizontal" Spacing="8">
+                                              <material:MaterialIcon Kind="FolderOutline" Width="24" Height="24" Foreground="#8b929a"/>
+                                              <TextBlock Text="Armazenamento Local" FontWeight="Bold" Foreground="#e1e6eb" FontSize="14" VerticalAlignment="Center"/>
+                                         </StackPanel>
+                                         <TextBlock Text="Os arquivos desta instância estão armazenados em seu disco local." Foreground="#8b929a" FontSize="12" Margin="32,0,0,0"/>
+                                    </StackPanel>
+
+                                    <!-- Actions -->
+                                    <StackPanel Spacing="12" Margin="32,0,0,0">
+                                         <!-- Browse Button -->
+                                         <Button Command="{Binding OpenFolderCommand}"
+                                                 Background="#2a3f5a" Foreground="#e1e6eb" 
+                                                 Padding="16,10" HorizontalAlignment="Left" CornerRadius="2"
+                                                 Cursor="Hand" Width="250" HorizontalContentAlignment="Left">
+                                             <StackPanel Orientation="Horizontal" Spacing="12">
+                                                 <material:MaterialIcon Kind="FolderOpen" Width="18" Height="18" Foreground="#66c0f4"/>
+                                                 <TextBlock Text="Explorar arquivos locais..."/>
+                                             </StackPanel>
+                                         </Button>
+                                         
+                                         <!-- Verify Button -->
+                                          <Button Command="{Binding VerifyCommand}"
+                                                  Background="#2a3f5a" Foreground="#e1e6eb" 
+                                                 Padding="16,10" HorizontalAlignment="Left" CornerRadius="2"
+                                                 Cursor="Hand" Width="250" HorizontalContentAlignment="Left">
+                                             <StackPanel Orientation="Horizontal" Spacing="12">
+                                                  <material:MaterialIcon Kind="CheckDecagramOutline" Width="18" Height="18" Foreground="#66c0f4"/>
+                                                 <TextBlock Text="Verificar integridade..."/>
+                                             </StackPanel>
+                                         </Button>
+                                         
+                                          <!-- Uninstall / Confirmation Group -->
+                                          <Panel HorizontalAlignment="Left" Width="300">
+                                              <!-- Initial Uninstall Button -->
+                                              <Button Command="{Binding RequestDeleteCommand}"
+                                                      IsVisible="{Binding !IsConfirmingDelete}"
+                                                      Background="#2a3f5a" Foreground="#e1e6eb" 
+                                                      Padding="16,10" HorizontalAlignment="Stretch" CornerRadius="2"
+                                                      Cursor="Hand" HorizontalContentAlignment="Left">
+                                                  <StackPanel Orientation="Horizontal" Spacing="12">
+                                                      <material:MaterialIcon Kind="DeleteOutline" Width="18" Height="18" Foreground="#66c0f4"/>
+                                                      <TextBlock Text="Desinstalar..."/>
+                                                  </StackPanel>
+                                                  <Button.Styles>
+                                                      <Style Selector="Button:pointerover">
+                                                          <Setter Property="Background" Value="#3d4450"/>
+                                                          <Setter Property="Foreground" Value="White"/>
+                                                      </Style>
+                                                  </Button.Styles>
+                                              </Button>
+                                              
+                                              <!-- Confirmation View (Safety Area) -->
+                                              <Border IsVisible="{Binding IsConfirmingDelete}" 
+                                                      Background="#2d1616" BorderBrush="#d32f2f" BorderThickness="1"
+                                                      CornerRadius="2" Padding="12">
+                                                  <StackPanel Spacing="10">
+                                                      <TextBlock Text="Tem certeza? Isso não pode ser desfeito." 
+                                                                 Foreground="#ffcccc" FontSize="11" TextWrapping="Wrap"/>
+                                                      
+                                                      <Grid ColumnDefinitions="*, Auto">
+                                                          <Button Command="{Binding CancelDeleteCommand}"
+                                                                  Grid.Column="0"
+                                                                  Background="Transparent" Foreground="#8b929a"
+                                                                  Padding="8,6" CornerRadius="2" Cursor="Hand"
+                                                                  HorizontalAlignment="Left"
+                                                                  Content="Cancelar"/>
+
+                                                          <Button Command="{Binding DeleteCommand}"
+                                                                  Grid.Column="1"
+                                                                  Background="#d32f2f" Foreground="White"
+                                                                  Padding="16,6" CornerRadius="2" Cursor="Hand"
+                                                                  FontWeight="Bold" Content="EXCLUIR"/>
+                                                      </Grid>
+                                                  </StackPanel>
+                                              </Border>
+                                          </Panel>
+                                    </StackPanel>
                                 </StackPanel>
                             </StackPanel>
                         </Panel>

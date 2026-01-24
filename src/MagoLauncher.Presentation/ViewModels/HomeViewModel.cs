@@ -42,7 +42,11 @@ public partial class HomeViewModel : ViewModelBase
     {
         if (SelectedInstance == null) return;
 
-        var vm = new InstanceConfigurationViewModel(SelectedInstance, _instanceService, () => CloseOverlay());
+        var vm = new InstanceConfigurationViewModel(
+            SelectedInstance,
+            _instanceService,
+            () => CloseOverlay(),
+            async () => await ReloadInstances()); // Reload instances on delete
         OverlayContent = vm;
         IsOverlayVisible = true;
     }

@@ -25,12 +25,14 @@ public partial class InstanceConfigurationViewModel : ViewModelBase
     private string _javaArgs;
 
     private readonly Action _onClose;
+    private readonly Action? _onDeleted;
 
-    public InstanceConfigurationViewModel(MinecraftInstance instance, IMinecraftInstanceService instanceService, Action onClose)
+    public InstanceConfigurationViewModel(MinecraftInstance instance, IMinecraftInstanceService instanceService, Action onClose, Action? onDeleted = null)
     {
         _instance = instance;
         _instanceService = instanceService;
         _onClose = onClose;
+        _onDeleted = onDeleted;
         _title = $"Configurações: {instance.Name}";
 
         // Initialize from metadata
@@ -72,5 +74,84 @@ public partial class InstanceConfigurationViewModel : ViewModelBase
     public void ToggleOverride()
     {
         OverrideGlobalRam = !OverrideGlobalRam;
+    }
+
+    [RelayCommand]
+    public void OpenFolder()
+    {
+        if (_instance == null) return;
+
+        var path = _instance.InstancePath;
+        if (string.IsNullOrEmpty(path))
+        {
+            path = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "instances", _instance.Name);
+        }
+
+        // Ensure directory exists
+        if (!System.IO.Directory.Exists(path))
+        {
+            // Fallback to instances root
+            path = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "instances");
+        }
+
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = path,
+                UseShellExecute = true,
+                Verb = "open"
+            });
+        }
+        catch { /* Ignore explorer launch errors */ }
+    }
+
+    [RelayCommand]
+    public async Task Verify()
+    {
+        // Placeholder for verification logic
+        await Task.Delay(500); // Simulate work
+    }
+
+    [ObservableProperty]
+    private bool _isConfirmingDelete;
+
+    [RelayCommand]
+    public void RequestDelete()
+    {
+        IsConfirmingDelete = true;
+    }
+
+    [RelayCommand]
+    public void CancelDelete()
+    {
+        IsConfirmingDelete = false;
+    }
+
+    [RelayCommand]
+    public async Task Delete()
+    {
+        if (!IsConfirmingDelete)
+        {
+            IsConfirmingDelete = true;
+            return;
+        }
+
+        try
+        {
+            await _instanceService.DeleteInstanceAsync(_instance);
+
+            // Invoke callbacks on UI thread if necessary, but Action usually okay.
+            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+            {
+                _onClose?.Invoke();
+                _onDeleted?.Invoke();
+            });
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error deleting instance: {ex.Message}");
+            // In a real app, we'd show a dialog here.
+        }
     }
 }

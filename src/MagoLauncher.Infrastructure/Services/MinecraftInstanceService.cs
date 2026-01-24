@@ -101,10 +101,14 @@ public class MinecraftInstanceService : IMinecraftInstanceService
         }
     }
 
-    public Task DeleteInstanceAsync(Guid id)
+    public async Task DeleteInstanceAsync(MinecraftInstance instance)
     {
-        // Placeholder for deletion
-        return Task.CompletedTask;
+        if (string.IsNullOrEmpty(instance.InstancePath)) return;
+
+        if (Directory.Exists(instance.InstancePath))
+        {
+            await Task.Run(() => Directory.Delete(instance.InstancePath, true));
+        }
     }
 
     public async Task LaunchInstanceAsync(MinecraftInstance instance, string playerName, int maxRamMb, Action<string>? outputCallback = null)

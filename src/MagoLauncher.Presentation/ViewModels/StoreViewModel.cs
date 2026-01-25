@@ -48,9 +48,19 @@ namespace MagoLauncher.Presentation.ViewModels
             _modpacks = new ObservableCollection<Modpack>();
         }
 
+        [ObservableProperty]
+        private bool _isOffline;
+
+        [RelayCommand]
+        public async Task Retry()
+        {
+            await LoadModpacks();
+        }
+
         private async Task LoadModpacks()
         {
             IsLoading = true;
+            IsOffline = false;
             try
             {
                 var response = await _httpClient.GetAsync("http://localhost:3000/modpacks");
@@ -90,8 +100,9 @@ namespace MagoLauncher.Presentation.ViewModels
                     }
                 }
             }
-            catch (HttpRequestException ex)
+            catch (Exception ex)
             {
+                IsOffline = true;
                 _notificationService?.ShowError("Erro ao carregar loja", $"Não foi possível conectar ao servidor: {ex.Message}");
             }
             finally

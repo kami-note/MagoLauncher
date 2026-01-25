@@ -41,7 +41,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _settingsPage = new SettingsViewModel();
         _storePage = new StoreViewModel(this, _notificationService, _instanceService);
         // Pass dependencies to HomeViewModel
-        _homePage = new HomeViewModel(instanceService, _settingsPage, this);
+        _homePage = new HomeViewModel(instanceService, _settingsPage, this, _modpackService);
 
 
         _currentPage = _homePage;
@@ -77,7 +77,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _settingsService = null!;
         _settingsPage = new SettingsViewModel();
         _storePage = new StoreViewModel();
-        _homePage = new HomeViewModel(null!, _settingsPage, this);
+        _homePage = new HomeViewModel(null!, _settingsPage, this, null!);
         _currentPage = _homePage;
         _activeView = "Home"; // Initialize active view
     }

@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using MagoLauncher.Presentation.Models;
 using MagoLauncher.Domain.Entities;
 using System.Collections.ObjectModel;
 using MagoLauncher.Application.Services;
@@ -182,9 +183,9 @@ public partial class HomeViewModel : ViewModelBase
 
     // Adding the property and command for the View to bind to
     [RelayCommand]
-    public async Task UpdateInstance()
+    public Task UpdateInstance()
     {
-        if (SelectedInstance == null) return;
+        if (SelectedInstance == null) return Task.CompletedTask;
 
         // Navigate to Store/ModpackDetail to perform the update
         // Or perform update right here. The prompt says "mandatory option... in library". 
@@ -218,6 +219,7 @@ public partial class HomeViewModel : ViewModelBase
                 IsLoading = false;
             }
         }
+        return Task.CompletedTask;
     }
 
     public async Task ReloadInstances()

@@ -32,7 +32,7 @@ public class ModpackService : IModpackService
         _httpClient = httpClient;
     }
 
-    public async Task<ModpackApiDto> GetModpackAsync(string slug)
+    public Task<ModpackApiDto> GetModpackAsync(string slug)
     {
         // Placeholder implementation - In real app, this would hit the API
         // For this task, we can mock it or check a known URL.
@@ -46,7 +46,7 @@ public class ModpackService : IModpackService
         catch
         {
             // Return a dummy for testing checking logic if API fails
-            return new ModpackApiDto
+            return Task.FromResult(new ModpackApiDto
             {
                 Name = "Unknown",
                 Slug = slug,
@@ -54,7 +54,7 @@ public class ModpackService : IModpackService
                 MinecraftVersion = "1.20.1",
                 DownloadLink = ""
                 // Version 99.9.9 to force update available for testing
-            };
+            });
         }
     }
 
@@ -278,7 +278,7 @@ public class ModpackService : IModpackService
             // 5. Update Version Metadata
             // 5. Update Version Metadata
             string jsonPath = Path.Combine(installPath, "mago_instance.json");
-            ModpackMetadata metadata;
+            ModpackMetadata? metadata;
 
             if (File.Exists(jsonPath))
             {

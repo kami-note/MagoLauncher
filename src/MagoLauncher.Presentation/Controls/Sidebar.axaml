@@ -82,7 +82,10 @@
             <ListBox.ItemTemplate>
                 <DataTemplate x:DataType="models:MinecraftInstance">
                     <Grid ColumnDefinitions="Auto, *">
-                        <material:MaterialIcon Kind="CubeOutline" Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center" Opacity="0.8"/>
+                        <Panel>
+                            <material:MaterialIcon Kind="CubeOutline" Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center" Opacity="0.8" IsVisible="{Binding !IsUpdateAvailable}"/>
+                            <material:MaterialIcon Kind="Update" Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center" Foreground="#ff9800" IsVisible="{Binding IsUpdateAvailable}"/>
+                        </Panel>
                         <TextBlock Text="{Binding Name}" Grid.Column="1" VerticalAlignment="Center" FontSize="13"/>
                     </Grid>
                 </DataTemplate>

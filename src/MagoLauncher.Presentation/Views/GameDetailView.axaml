@@ -148,9 +148,22 @@
 
                      <!-- Action Bar -->
                      <StackPanel Orientation="Horizontal" Spacing="32" VerticalAlignment="Center">
-                        <!-- Play Button -->
+                        <!-- Update Button (Mandatory) -->
+                         <Button Classes="PlayButton" 
+                                 Background="#ff9800"
+                                 Command="{Binding UpdateInstanceCommand}" 
+                                 IsVisible="{Binding SelectedInstance.IsUpdateAvailable}">
+                             <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                                 <material:MaterialIcon Kind="Update" Width="24" Height="24"/>
+                                 <TextBlock Text="ATUALIZAR"/>
+                             </StackPanel>
+                         </Button>
+
+                        <!-- Play Button (Hidden if Update Available) -->
                          <Button Classes="PlayButton"
-                                 Command="{Binding LaunchGameCommand}" IsEnabled="{Binding !IsLoading}">
+                                 Command="{Binding LaunchGameCommand}" 
+                                 IsEnabled="{Binding !IsLoading}"
+                                 IsVisible="{Binding !SelectedInstance.IsUpdateAvailable}">
                              <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
                                  <material:MaterialIcon Kind="Play" Width="24" Height="24"/>
                                  <TextBlock Text="JOGAR"/>

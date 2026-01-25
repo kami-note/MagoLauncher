@@ -3,14 +3,14 @@ using CommunityToolkit.Mvvm.Input;
 using MagoLauncher.Application.Services;
 using MagoLauncher.Presentation.Models;
 using System.Threading.Tasks;
-using System; // Added for StringComparison
-using System.Linq; // Restored for FirstOrDefault
+using System;
+using System.Linq;
 
 namespace MagoLauncher.Presentation.ViewModels;
 
 public partial class ModpackDetailViewModel : ViewModelBase
 {
-    private readonly MainWindowViewModel _mainWindowViewModel; // Restored
+    private readonly MainWindowViewModel _mainWindowViewModel;
     private readonly IModpackService _modpackService;
     private readonly INotificationService _notificationService;
     private readonly IMinecraftInstanceService _instanceService;
@@ -50,7 +50,13 @@ public partial class ModpackDetailViewModel : ViewModelBase
         {
             IsInstalled = true;
             Modpack.IsInstalled = true;
-            Modpack.InstanceId = installedInstance.Id;
+            Modpack.InstanceId = installedInstance.Id; // This is a Guid?
+
+            // Check for update
+            if (!string.Equals(installedInstance.Metadata?.Version, Modpack.Version, StringComparison.OrdinalIgnoreCase))
+            {
+                IsUpdateAvailable = true;
+            }
         }
     }
 
@@ -83,15 +89,9 @@ public partial class ModpackDetailViewModel : ViewModelBase
     {
         if (Modpack.InstanceId.HasValue)
         {
-            // Ideally we'd navigate to the game detail view or launch it.
-            // For now, let's navigate to the details in the Home view.
             await _mainWindowViewModel.GoToHome();
-            // You might need a way to select the instance in the HomeViewModel. 
-            // This might require passing the ID or handling it via a shared service or message.
-            // For this task, getting it "identified" is the priority.
         }
     }
-
 
     [ObservableProperty]
     private double _downloadProgress;
@@ -99,12 +99,71 @@ public partial class ModpackDetailViewModel : ViewModelBase
     [ObservableProperty]
     private bool _isDownloading;
 
+    [ObservableProperty]
+    private bool _isUpdateAvailable;
+
+    [RelayCommand]
+    public async Task Update()
+    {
+        if (_modpackService == null || Modpack == null || !Modpack.InstanceId.HasValue) return;
+        if (IsDownloading) return;
+
+        IsDownloading = true;
+        DownloadProgress = 0;
+
+        var dto = new MagoLauncher.Application.DTOs.ModpackApiDto
+        {
+            Name = Modpack.Name ?? "Unknown",
+            Slug = Modpack.Slug ?? "unknown",
+            Summary = Modpack.Summary,
+            Description = Modpack.Description,
+            Version = Modpack.Version ?? "0.0.0",
+            MinecraftVersion = Modpack.MinecraftVersion ?? "1.0",
+            Author = Modpack.Author,
+            Thumbnail = Modpack.Thumbnail,
+            DownloadLink = Modpack.DownloadLink ?? "",
+            Changelogs = Modpack.Changelogs
+        };
+
+        try
+        {
+            var progress = new System.Progress<double>(percent =>
+            {
+                DownloadProgress = percent;
+            });
+
+            // InstanceId is Guid?, UpdateModpackAsync expects string instanceId (which is likely just the ID)
+            await _modpackService.UpdateModpackAsync(dto, Modpack.InstanceId.Value.ToString(), progress);
+
+            _notificationService?.ShowSuccess("Sucesso", "Modpack atualizado com sucesso!");
+
+            IsUpdateAvailable = false;
+            Modpack.IsInstalled = true;
+            IsInstalled = true;
+        }
+        catch (System.Exception ex)
+        {
+            _notificationService?.ShowError("Erro na Atualização", $"Falha ao atualizar modpack: {ex.Message}");
+        }
+        finally
+        {
+            IsDownloading = false;
+        }
+    }
+
     [RelayCommand]
     public async Task Install()
     {
         if (IsInstalled)
         {
-            Play();
+            if (IsUpdateAvailable)
+            {
+                await Update();
+            }
+            else
+            {
+                await Play();
+            }
             return;
         }
 
@@ -137,14 +196,11 @@ public partial class ModpackDetailViewModel : ViewModelBase
 
             await _modpackService.InstallModpackAsync(dto, progress);
 
-            // Navigate to home to show new instance
             await _mainWindowViewModel.GoToHome();
         }
         catch (System.Exception ex)
         {
             _notificationService?.ShowError("Falha na Instalação", $"Ocorreu um erro ao instalar o modpack: {ex.Message}");
-            System.Console.WriteLine($"Install failed: {ex}");
-            // Reset state on failure so user can try again
             IsDownloading = false;
             DownloadProgress = 0;
         }

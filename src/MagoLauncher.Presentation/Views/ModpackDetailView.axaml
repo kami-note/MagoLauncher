@@ -175,35 +175,50 @@
                      <!-- Actions -->
                      <StackPanel Orientation="Horizontal" Spacing="16">
                           <Panel>
-                              <!-- Install/Download Group -->
-                              <Panel IsVisible="{Binding IsNotInstalled}">
-                                  <Button Classes="PrimaryBtn" Command="{Binding InstallCommand}" IsVisible="{Binding !IsDownloading}">
+                              <!-- Loading/Progress State -->
+                              <StackPanel Spacing="8" IsVisible="{Binding IsDownloading}" Width="300" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                  <Grid ColumnDefinitions="*, Auto">
+                                      <TextBlock Text="PROCESSANDO..." FontSize="12" FontWeight="Bold" Foreground="#66c0f4"/>
+                                      <TextBlock Text="{Binding DownloadProgress, StringFormat='{}{0:0}%'}" Grid.Column="1" FontSize="12" Foreground="#e1e6eb"/>
+                                  </Grid>
+                                  <ProgressBar Value="{Binding DownloadProgress}" Maximum="100" Height="6" Background="#2a3849" Foreground="#66c0f4" CornerRadius="3"/>
+                              </StackPanel>
+
+                              <!-- Buttons State (Visible when NOT downloading) -->
+                              <StackPanel Orientation="Horizontal" Spacing="16" IsVisible="{Binding !IsDownloading}">
+                                  
+                                  <!-- Install -->
+                                  <Button Classes="PrimaryBtn" Command="{Binding InstallCommand}" IsVisible="{Binding IsNotInstalled}">
                                       <StackPanel Orientation="Horizontal" Spacing="10">
                                          <material:MaterialIcon Kind="Download" Width="20" Height="20"/>
                                          <TextBlock Text="INSTALAR MODPACK"/>
                                       </StackPanel>
                                   </Button>
-                                  
-                                  <StackPanel Spacing="8" IsVisible="{Binding IsDownloading}" Width="300" HorizontalAlignment="Left" VerticalAlignment="Center">
-                                      <Grid ColumnDefinitions="*, Auto">
-                                          <TextBlock Text="BAIXANDO..." FontSize="12" FontWeight="Bold" Foreground="#66c0f4"/>
-                                          <TextBlock Text="{Binding DownloadProgress, StringFormat='{}{0:0}%'}" Grid.Column="1" FontSize="12" Foreground="#e1e6eb"/>
-                                      </Grid>
-                                      <ProgressBar Value="{Binding DownloadProgress}" Maximum="100" Height="6" Background="#2a3849" Foreground="#66c0f4" CornerRadius="3"/>
-                                  </StackPanel>
-                              </Panel>
 
-                              <!-- Play Button -->
-                              <Button Classes="PrimaryBtn" 
-                                      Command="{Binding PlayCommand}" 
-                                      Background="#4CAF50"
-                                      IsVisible="{Binding IsInstalled}">
-                                  <StackPanel Orientation="Horizontal" Spacing="10">
-                                     <material:MaterialIcon Kind="Play" Width="20" Height="20"/>
-                                     <TextBlock Text="JOGAR"/>
-                                  </StackPanel>
-                              </Button>
+                                  <!-- Update (Visible if Installed AND UpdateAvailable) -->
+                                  <Button Classes="PrimaryBtn" 
+                                          Command="{Binding UpdateCommand}" 
+                                          Background="#FFAA00" Foreground="#0f1219"
+                                          IsVisible="{Binding IsUpdateAvailable}">
+                                      <StackPanel Orientation="Horizontal" Spacing="10">
+                                         <material:MaterialIcon Kind="Update" Width="20" Height="20"/>
+                                         <TextBlock Text="ATUALIZAR"/>
+                                      </StackPanel>
+                                  </Button>
+
+                                  <!-- Play (Visible if Installed) -->
+                                  <Button Classes="PrimaryBtn" 
+                                          Command="{Binding PlayCommand}" 
+                                          Background="#4CAF50"
+                                          IsVisible="{Binding IsInstalled}">
+                                      <StackPanel Orientation="Horizontal" Spacing="10">
+                                         <material:MaterialIcon Kind="Play" Width="20" Height="20"/>
+                                         <TextBlock Text="JOGAR"/>
+                                      </StackPanel>
+                                  </Button>
+                              </StackPanel>
                           </Panel>
+
                          <!-- Like/Share buttons placeholder -->
                          <Button Background="#2a3849" CornerRadius="4" Padding="12" BorderThickness="0" Cursor="Hand">
                              <material:MaterialIcon Kind="HeartOutline" Width="20" Height="20" Foreground="#8b929a"/>

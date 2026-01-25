@@ -31,6 +31,10 @@ public partial class App : Avalonia.Application
             var settingsService = new MagoLauncher.Infrastructure.Services.SettingsService();
             var notificationService = new MagoLauncher.Presentation.Services.NotificationService();
 
+            var updateService = new MagoLauncher.Presentation.Services.UpdateService();
+            // Check for updates in background
+            _ = System.Threading.Tasks.Task.Run(async () => await updateService.CheckAndApplyUpdatesAsync());
+
             var mainWindow = new MainWindow
             {
                 DataContext = new MainWindowViewModel(instanceService, modpackService, notificationService, settingsService),

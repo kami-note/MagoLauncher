@@ -12,6 +12,9 @@ sealed class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        // Velopack startup handling (install/update hooks)
+        Velopack.VelopackApp.Build().Run();
+
         LogTrace("Program.Main Started");
 
         // Add global exception handlers

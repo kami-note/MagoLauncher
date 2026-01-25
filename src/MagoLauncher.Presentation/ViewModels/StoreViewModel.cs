@@ -63,7 +63,7 @@ namespace MagoLauncher.Presentation.ViewModels
             IsOffline = false;
             try
             {
-                var response = await _httpClient.GetAsync("http://localhost:3000/modpacks");
+                var response = await _httpClient.GetAsync($"{MagoLauncher.Domain.Constants.ApiConstants.BaseApiUrl}modpacks");
                 response.EnsureSuccessStatusCode();
                 var json = await response.Content.ReadAsStringAsync();
                 var modpacks = JsonSerializer.Deserialize<ObservableCollection<Modpack>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });

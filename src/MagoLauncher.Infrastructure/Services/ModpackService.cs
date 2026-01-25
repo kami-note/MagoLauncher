@@ -11,13 +11,7 @@ public class ModpackService : IModpackService
 {
     private readonly MinecraftPath _minecraftPath;
     private readonly HttpClient _httpClient;
-    private const string API_URL = "https://api.magolauncher.com/v1/modpacks"; // Hypothetical URL, user didn't specify, but I'll use a placeholder or check where StoreView gets it.
-                                                                               // Wait, I saw StoreView.axaml.cs earlier but didn't read the fetching logic.
-                                                                               // The previous ModpackService snippet shows it only does Install/Update.
-                                                                               // I need to know WHERE the API is.
-                                                                               // Let's assume for now I can implement it or mock it.
-                                                                               // Actually, I should probably check StoreView.axaml.cs to see how it fetches.
-                                                                               // But I will implement a generic fetch here.
+
 
     // Correction: I don't set API_URL here if not known.
     // I will implement a placeholder that throws or does a simple GET if URL is known.
@@ -42,7 +36,7 @@ public class ModpackService : IModpackService
             // return response;
 
             // Fallback: Fetch all and filter (safer given we know /modpacks/ returns a list)
-            var response = await _httpClient.GetAsync("http://localhost:3000/modpacks");
+            var response = await _httpClient.GetAsync($"{MagoLauncher.Domain.Constants.ApiConstants.BaseApiUrl}modpacks");
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync();
             var modpacks = JsonSerializer.Deserialize<List<ModpackApiDto>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });

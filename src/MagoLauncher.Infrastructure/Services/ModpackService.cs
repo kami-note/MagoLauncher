@@ -32,29 +32,34 @@ public class ModpackService : IModpackService
         _httpClient = httpClient;
     }
 
-    public Task<ModpackApiDto> GetModpackAsync(string slug)
+    public async Task<ModpackApiDto> GetModpackAsync(string slug)
     {
-        // Placeholder implementation - In real app, this would hit the API
-        // For this task, we can mock it or check a known URL.
-        // Assuming a standard endpoint structure.
+        // Temporary implementation trying to hit the local API shown in StoreViewModel
         try
         {
-            // var response = await _httpClient.GetFromJsonAsync<ModpackApiDto>($"https://api.magolauncher.com/modpacks/{slug}");
+            // Try explicit endpoint first (guess)
+            // var response = await _httpClient.GetFromJsonAsync<ModpackApiDto>($"http://localhost:3000/modpacks/{slug}");
             // return response;
-            throw new NotImplementedException("API endpoint not configured");
-        }
-        catch
-        {
-            // Return a dummy for testing checking logic if API fails
-            return Task.FromResult(new ModpackApiDto
+
+            // Fallback: Fetch all and filter (safer given we know /modpacks/ returns a list)
+            var response = await _httpClient.GetAsync("http://localhost:3000/modpacks");
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
+            var modpacks = JsonSerializer.Deserialize<List<ModpackApiDto>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            var match = modpacks?.FirstOrDefault(m => string.Equals(m.Slug, slug, StringComparison.OrdinalIgnoreCase));
+
+            if (match == null)
             {
-                Name = "Unknown",
-                Slug = slug,
-                Version = "99.9.9",
-                MinecraftVersion = "1.20.1",
-                DownloadLink = ""
-                // Version 99.9.9 to force update available for testing
-            });
+                throw new KeyNotFoundException($"Modpack with slug '{slug}' not found.");
+            }
+
+            return match;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ModpackService] Error fetching modpack '{slug}': {ex.Message}");
+            throw;
         }
     }
 

@@ -99,6 +99,51 @@ public partial class HomeViewModel : ViewModelBase
 
         // Load Cover
         _ = LoadInstanceCover(value);
+
+        // Load Activity Feed (Fresh from API)
+        _ = LoadActivityFeed(value);
+    }
+
+    [ObservableProperty]
+    private ObservableCollection<ModpackChangelog> _activityFeed = new();
+
+    private async Task LoadActivityFeed(MinecraftInstance instance)
+    {
+        ActivityFeed.Clear();
+        if (instance.Metadata?.Slug == null || _modpackService == null) return;
+
+        try
+        {
+            var freshDto = await _modpackService.GetModpackAsync(instance.Metadata.Slug);
+            if (freshDto?.Changelogs != null)
+            {
+                // Map DTO to Entity
+                var changes = freshDto.Changelogs.Select(c => new ModpackChangelog
+                {
+                    Version = c.Version,
+                    Text = c.Text,
+                    UpdatedAt = c.UpdatedAt
+                })
+                .OrderByDescending(c => c.UpdatedAt) // Ensure latest first
+                .ToList();
+
+                foreach (var change in changes)
+                {
+                    ActivityFeed.Add(change);
+                }
+            }
+        }
+        catch
+        {
+            // If API fails, fallback to local if available, or stay empty
+            if (instance.Metadata.Changelogs != null)
+            {
+                foreach (var change in instance.Metadata.Changelogs)
+                {
+                    ActivityFeed.Add(change);
+                }
+            }
+        }
     }
 
     private async Task LoadInstanceCover(MinecraftInstance instance)
@@ -183,9 +228,9 @@ public partial class HomeViewModel : ViewModelBase
 
     // Adding the property and command for the View to bind to
     [RelayCommand]
-    public Task UpdateInstance()
+    public async Task UpdateInstance()
     {
-        if (SelectedInstance == null) return Task.CompletedTask;
+        if (SelectedInstance == null) return;
 
         // Navigate to Store/ModpackDetail to perform the update
         // Or perform update right here. The prompt says "mandatory option... in library". 
@@ -194,32 +239,56 @@ public partial class HomeViewModel : ViewModelBase
 
         if (SelectedInstance.Metadata != null)
         {
-            var modpack = new Modpack
-            {
-                Name = SelectedInstance.Metadata.Name,
-                Slug = SelectedInstance.Metadata.Slug,
-                Version = SelectedInstance.Metadata.Version,
-                // We might lack full details here without fetching, but ModpackDetailViewModel fetches status.
-                // We need to pass enough to identify it.
-                Thumbnail = SelectedInstance.IconPath // Use icon or fetch thumbnail
-            };
-
-            // WE need to pass the "Latest" version if we know it, otherwise ModpackDetail check might fail if it relies on "Modpack" arg being the online one.
-            // Actually ModpackDetailViewModel CheckInstallationStatus compares "Modpack.Version" (Online) vs "Installed.Version".
-            // So we must ensure we pass the ONLINE modpack object, not the installed one.
-            // This suggests we should probably fetch the modpack DTO first.
-
             IsLoading = true;
             try
             {
-                // We need the service. I will add it in the next step properly.
+                // Fetch fresh data from API
+                var freshDto = await _modpackService.GetModpackAsync(SelectedInstance.Metadata.Slug);
+
+                var modpack = new Modpack
+                {
+                    Name = freshDto.Name,
+                    Slug = freshDto.Slug,
+                    Version = freshDto.Version, // This is the REMOTE version
+                    MinecraftVersion = freshDto.MinecraftVersion,
+                    Author = freshDto.Author,
+                    Summary = freshDto.Summary,
+                    Description = freshDto.Description,
+                    Thumbnail = freshDto.Thumbnail,
+                    DownloadLink = freshDto.DownloadLink,
+                    Changelogs = freshDto.Changelogs
+                };
+
+                // Set installed flag based on LOCAL instance (which we know exists)
+                modpack.IsInstalled = true;
+                modpack.InstanceId = SelectedInstance.Id;
+
+                _mainWindowViewModel.GoToModpackDetails(modpack);
+            }
+            catch (Exception ex)
+            {
+                // Fallback to local data if API fails, but notify
+                // Or just show error
+                System.Console.WriteLine($"[HomeViewModel] Failed to fetch update info: {ex.Message}");
+
+                var modpack = new Modpack
+                {
+                    Name = SelectedInstance.Metadata.Name,
+                    Slug = SelectedInstance.Metadata.Slug,
+                    Version = SelectedInstance.Metadata.Version,
+                    Thumbnail = SelectedInstance.IconPath
+                };
+                modpack.IsInstalled = true;
+                modpack.InstanceId = SelectedInstance.Id;
+
+                _mainWindowViewModel.GoToModpackDetails(modpack);
             }
             finally
             {
                 IsLoading = false;
             }
         }
-        return Task.CompletedTask;
+
     }
 
     public async Task ReloadInstances()

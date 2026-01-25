@@ -220,7 +220,7 @@
                     <Panel>
                          <!-- Activity Content -->
                         <StackPanel Spacing="16" Margin="0,0,0,40" IsVisible="{Binding #TabActivity.IsChecked}">
-                             <ItemsControl ItemsSource="{Binding SelectedInstance.Metadata.Changelogs}">
+                             <ItemsControl ItemsSource="{Binding ActivityFeed}">
                                  <ItemsControl.ItemTemplate>
                                      <DataTemplate>
                                          <Border Background="#1c2533" CornerRadius="4" Padding="20" Margin="0,0,0,16">
@@ -237,7 +237,7 @@
                                  </ItemsControl.ItemTemplate>
                              </ItemsControl>
                              <TextBlock Text="Nenhuma atividade recente registrada." 
-                                        IsVisible="{Binding !SelectedInstance.Metadata.Changelogs.Count, FallbackValue=True}"
+                                        IsVisible="{Binding !ActivityFeed.Count, FallbackValue=True}"
                                         Foreground="#3d4450" HorizontalAlignment="Center" Margin="0,40"/>
                         </StackPanel>
 

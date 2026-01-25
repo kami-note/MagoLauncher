@@ -53,11 +53,80 @@ public partial class ModpackDetailViewModel : ViewModelBase
             Modpack.InstanceId = installedInstance.Id; // This is a Guid?
 
             // Check for update
-            if (!string.Equals(installedInstance.Metadata?.Version, Modpack.Version, StringComparison.OrdinalIgnoreCase))
+            // Check for update
+            if (CheckForUpdate(installedInstance.Metadata?.Version, Modpack.Version))
             {
                 IsUpdateAvailable = true;
             }
         }
+    }
+
+    private bool CheckForUpdate(string? localVersion, string? remoteVersion)
+    {
+        if (string.IsNullOrWhiteSpace(remoteVersion)) return false; // No remote version = no update
+        if (string.IsNullOrWhiteSpace(localVersion)) return true;   // Check logic: if local has no version but remote does, assume update? 
+                                                                    // Or assume broken install. Let's assume update to be safe/fix it.
+
+        // Debug logging
+        System.Diagnostics.Debug.WriteLine($"[UpdateCheck] Local: '{localVersion}' | Remote: '{remoteVersion}'");
+        System.Console.WriteLine($"[UpdateCheck] Local: '{localVersion}' | Remote: '{remoteVersion}'");
+
+        string Sanitize(string v)
+        {
+            var s = v.Trim();
+            if (s.StartsWith("v", StringComparison.OrdinalIgnoreCase)) s = s.Substring(1);
+            // Handle "-beta", "-release" etc by taking only the first part? 
+            // System.Version supports major.minor.build.revision. 
+            // If we have "1.0.1-beta", parsing fails. 
+            // Let's try to split by '-' and take the first part for Version parsing, 
+            // but this loses semantic pre-release info (1.0.1-beta < 1.0.1).
+            // For now, let's just strip 'v'.
+            return s;
+        }
+
+        var sLocal = Sanitize(localVersion);
+        var sRemote = Sanitize(remoteVersion);
+
+        // Try parse
+        bool localParsed = Version.TryParse(sLocal, out Version? vLocal);
+        bool remoteParsed = Version.TryParse(sRemote, out Version? vRemote);
+
+        if (localParsed && remoteParsed)
+        {
+            // Robust comparison
+            if (vRemote > vLocal)
+            {
+                System.Console.WriteLine("[UpdateCheck] Remote > Local -> Update Available");
+                return true;
+            }
+            if (vRemote < vLocal)
+            {
+                System.Console.WriteLine("[UpdateCheck] Remote < Local -> No Update (Downgrade?)");
+                return false;
+            }
+            // Equal
+            return false;
+        }
+
+        // Fallback to string check if parsing fails (e.g. custom non-numeric versions)
+        // But NOT simple inequality. If strings are equal, no update.
+        if (string.Equals(sLocal, sRemote, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        // If different and not parsable, default to notifying update?
+        // Or checking if remote "looks" newer? Hard to say. 
+        // Current behavior was: different = update.
+        // Let's keep that for non-parsable strings to ensure users don't miss updates,
+        // but now strict equality (case-insensitive) prevents false positives on "1.0" vs "1.0"
+
+        // One edge case: "1.0" vs "1.0.0" -> if they fail parsing (unlikely), they are different strings.
+        // But Version.TryParse handles "1.0" -> 1.0 (-1,-1). "1.0.0" -> 1.0.0 (-1).
+        // Version comparison: 1.0 == 1.0.0. So parsing covers this.
+
+        System.Console.WriteLine("[UpdateCheck] Non-parsable versions differ -> Update Available");
+        return true;
     }
 
     // Default constructor for design preview
@@ -105,7 +174,14 @@ public partial class ModpackDetailViewModel : ViewModelBase
     [RelayCommand]
     public async Task Update()
     {
-        if (_modpackService == null || Modpack == null || !Modpack.InstanceId.HasValue) return;
+        System.Diagnostics.Debug.WriteLine($"[UpdateCommand] Clicked. Modpack: {Modpack?.Name}, InstanceId: {Modpack?.InstanceId}");
+
+        if (_modpackService == null || Modpack == null || !Modpack.InstanceId.HasValue)
+        {
+            System.Diagnostics.Debug.WriteLine($"[UpdateCommand] ABORTED. Service: {_modpackService != null}, Modpack: {Modpack != null}, InstanceId: {Modpack?.InstanceId}");
+            _notificationService?.ShowError("Erro", "Não foi possível iniciar a atualização: Identificador da instância inválido.");
+            return;
+        }
         if (IsDownloading) return;
 
         IsDownloading = true;

@@ -17,7 +17,10 @@ namespace MagoLauncher.Presentation.ViewModels
     public partial class StoreViewModel : ViewModelBase
     {
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasModpacks))]
         private ObservableCollection<Modpack> _modpacks;
+
+        public bool HasModpacks => Modpacks?.Count > 0;
 
         [ObservableProperty]
         private bool _isLoading;

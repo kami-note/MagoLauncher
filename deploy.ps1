@@ -35,47 +35,85 @@ function Upload-Files {
             $FileName = [System.IO.Path]::GetFileName($File)
             Write-Host "➡️ Processing $FileName" -ForegroundColor Yellow
 
-            # Step 1: Get Signed URL via API
-            Write-Host "   1. Requesting Upload URL..." -NoNewline
-            $Body = @{
+            Write-Host "   1. Requesting Upload URL..."
+            
+            $BodyObj = @{
                 filename    = $FileName
                 contentType = "application/octet-stream"
-            } | ConvertTo-Json -Compress
+            } 
+            $BodyJson = $BodyObj | ConvertTo-Json -Compress
+            
+            # Use local file to avoid temp path issues and ensure encoding
+            $PayloadFile = "$PWD\payload.json"
+            [System.IO.File]::WriteAllText($PayloadFile, $BodyJson, [System.Text.Encoding]::ASCII)
+            
+            $MaxRetries = 3
+            $RetryDelaySeconds = 2
+            $UploadUrl = $null
+            $Success = $false
 
-            try {
-                $Response = Invoke-RestMethod -Uri "$ApiUrl/releases/upload-url" -Method Post -Body $Body -ContentType "application/json"
-                $UploadUrl = $Response.url
-                
-                if ([string]::IsNullOrWhiteSpace($UploadUrl)) {
-                    throw "API returned empty URL."
+            for ($i = 0; $i -lt $MaxRetries; $i++) {
+                try {
+                    if ($i -gt 0) { Write-Host " (Retry $($i+1))..." -NoNewline }
+                    
+                    # Use curl.exe to get the URL
+                    $UploadUrlResponse = & curl.exe -s -S -X POST "$ApiUrl/releases/upload-url" -H "Content-Type: application/json" -d "@$PayloadFile"
+                    
+                    if ($LASTEXITCODE -ne 0) { 
+                        throw "Curl failed (Exit code $LASTEXITCODE)" 
+                    }
+
+                    $TrimmedResponse = $UploadUrlResponse.Trim()
+
+                    # Basic JSON validation (Robust against non-JSON errors like "Server Error")
+                    if (-not ($TrimmedResponse.StartsWith("{") -or $TrimmedResponse.StartsWith("["))) {
+                        throw "Server returned non-JSON response: $TrimmedResponse"
+                    }
+
+                    $Response = $TrimmedResponse | ConvertFrom-Json
+                    
+                    # Handle if response is array or object
+                    if ($Response -is [array]) {
+                        $UploadUrl = $Response[0].url
+                    }
+                    else {
+                        $UploadUrl = $Response.url
+                    }
+                    
+                    if ([string]::IsNullOrWhiteSpace($UploadUrl)) {
+                        throw "API returned empty URL or invalid structure."
+                    }
+                    
+                    $Success = $true
+                    break
                 }
-                Write-Host " Done." -ForegroundColor Green
+                catch {
+                    if ($i -eq $MaxRetries - 1) {
+                        Write-Host " Failed." -ForegroundColor Red
+                        Write-Host "Last Error: $_" -ForegroundColor DarkRed
+                        throw "Failed to get upload URL after $MaxRetries attempts: $_"
+                    }
+                    Start-Sleep -Seconds $RetryDelaySeconds
+                }
             }
-            catch {
-                Write-Host " Failed." -ForegroundColor Red
-                throw "Failed to get upload URL: $_"
+            
+            if (Test-Path $PayloadFile) { Remove-Item $PayloadFile -ErrorAction SilentlyContinue }
+            
+            if ($Success) {
+                Write-Host " Done." -ForegroundColor Green
             }
 
             # Step 2: Upload File content to the Signed URL
             Write-Host "   2. Uploading content..." -NoNewline
             
-            # Using curl.exe ensures proper binary streaming and PUT method handling
-            # -f (fail silently on server errors), -s (silent), -S (show error if failed), -L (follow redirects if any)
-            $curlArgs = @(
-                "-X", "PUT", 
-                "$UploadUrl", 
-                "-H", "Content-Type: application/octet-stream", 
-                "--data-binary", "@$File",
-                "--fail", "--silent", "--show-error"
-            )
+            # Using curl.exe with direct call operator '&' to handle argument quoting correctly
+            & curl.exe -X "PUT" "$UploadUrl" -H "Content-Type: application/octet-stream" --data-binary "@$File" --fail --silent --show-error
             
-            $process = Start-Process -FilePath "curl.exe" -ArgumentList $curlArgs -Wait -NoNewWindow -PassThru
-            
-            if ($process.ExitCode -eq 0) {
+            if ($LASTEXITCODE -eq 0) {
                 Write-Host " Done." -ForegroundColor Green
             }
             else {
-                Write-Host " Failed (Exit Code: $($process.ExitCode))." -ForegroundColor Red
+                Write-Host " Failed (Exit Code: $LASTEXITCODE)." -ForegroundColor Red
                 throw "Upload failed for $File"
             }
 
@@ -89,8 +127,13 @@ function Upload-Files {
 
 # Main execution flow
 try {
+    # Build-App
+    # Pack-App
+    
+    # Restoring original flow
     Build-App
     Pack-App
+
     Upload-Files
     Write-Host "🎉 Deployment finished successfully!" -ForegroundColor Green
 }

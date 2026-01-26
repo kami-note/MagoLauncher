@@ -108,9 +108,6 @@
              <Panel ClipToBounds="True">
                  <Image Source="{Binding SelectedInstanceCover}" 
                         Stretch="UniformToFill">
-                     <Image.Effect>
-                         <BlurEffect Radius="60"/>
-                     </Image.Effect>
                  </Image>
                  <!-- Dark Overlay -->
                  <Rectangle Fill="#0f1219" Opacity="0.2"/>

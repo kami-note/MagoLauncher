@@ -111,7 +111,7 @@ public class MinecraftInstanceService : IMinecraftInstanceService
         }
     }
 
-    public async Task LaunchInstanceAsync(MinecraftInstance instance, string playerName, int maxRamMb, Action<string>? outputCallback = null)
+    public async Task<Process?> LaunchInstanceAsync(MinecraftInstance instance, string playerName, int maxRamMb, Action<string>? outputCallback = null)
     {
         // Determine RAM to use
         int ramToUse = maxRamMb;
@@ -305,5 +305,7 @@ public class MinecraftInstanceService : IMinecraftInstanceService
             outputCallback?.Invoke($"[ERROR] Process exited with code {process.ExitCode}");
             throw new Exception($"Minecraft exited immediately with code {process.ExitCode}");
         }
+
+        return process;
     }
 }

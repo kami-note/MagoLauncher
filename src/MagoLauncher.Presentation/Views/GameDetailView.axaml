@@ -159,11 +159,11 @@
                         <!-- Play Button (Hidden if Update Available) -->
                          <Button Classes="PlayButton"
                                  Command="{Binding LaunchGameCommand}" 
-                                 IsEnabled="{Binding !IsLoading}"
+                                 IsEnabled="{Binding IsPlayButtonEnabled}"
                                  IsVisible="{Binding !SelectedInstance.IsUpdateAvailable}">
                              <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
                                  <material:MaterialIcon Kind="Play" Width="24" Height="24"/>
-                                 <TextBlock Text="JOGAR"/>
+                                 <TextBlock Text="{Binding PlayButtonText}"/>
                              </StackPanel>
                          </Button>
 

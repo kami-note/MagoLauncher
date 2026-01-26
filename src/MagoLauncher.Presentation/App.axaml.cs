@@ -67,6 +67,7 @@ public partial class App : Avalonia.Application
         // Application/Infrastructure Services
         services.AddSingleton<IModpackService, ModpackService>();
         services.AddSingleton<IMinecraftInstanceService, MinecraftInstanceService>();
+        services.AddSingleton<IGameSessionService, GameSessionService>();
         services.AddSingleton<ISettingsService, SettingsService>();
 
         // Presentation Services

@@ -25,6 +25,7 @@ public partial class HomeViewModel : ViewModelBase
     private readonly INavigationService _navigationService;
     private readonly ISettingsService _settingsService;
     private readonly IStatusService _statusService;
+    private readonly IGameSessionService _gameSessionService;
 
     [ObservableProperty]
     private bool _isLoading;
@@ -88,9 +89,32 @@ public partial class HomeViewModel : ViewModelBase
     [ObservableProperty]
     private string _playTimeText = "0 horas";
 
+    [ObservableProperty]
+    private bool _isGameRunning;
+
+    [ObservableProperty]
+    private string _gameStatusText = "";
+
+    [ObservableProperty]
+    private string _playButtonText = "JOGAR";
+
+    [ObservableProperty]
+    private bool _isPlayButtonEnabled = true;
+
     partial void OnSelectedInstanceChanged(MinecraftInstance? value)
     {
         if (value == null) return;
+
+        // Update Game Status
+        if (_gameSessionService != null)
+        {
+            IsGameRunning = _gameSessionService.IsGameRunning(value.Id);
+            GameStatusText = IsGameRunning ? "Rodando" : "";
+
+            // Update Button State
+            PlayButtonText = IsGameRunning ? "JOGANDO" : "JOGAR";
+            IsPlayButtonEnabled = !IsGameRunning && !IsLoading;
+        }
 
         // Update Stats
         if (value.LastPlayedAt == DateTime.MinValue)
@@ -173,14 +197,53 @@ public partial class HomeViewModel : ViewModelBase
         IModpackService modpackService,
         INavigationService navigationService,
         ISettingsService settingsService,
-        IStatusService statusService)
+        IStatusService statusService,
+        IGameSessionService gameSessionService)
     {
         _instanceService = instanceService;
         _modpackService = modpackService;
         _navigationService = navigationService;
         _settingsService = settingsService;
         _statusService = statusService;
+        _gameSessionService = gameSessionService;
+
+        _gameSessionService.SessionStarted += OnGameSessionStarted;
+        _gameSessionService.SessionEnded += OnGameSessionEnded;
+
         Initialize();
+    }
+
+    private void OnGameSessionStarted(object? sender, SessionStartedEventArgs e)
+    {
+        if (SelectedInstance != null && SelectedInstance.Id == e.InstanceId)
+        {
+            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+            {
+                IsGameRunning = true;
+                GameStatusText = "Rodando";
+                PlayButtonText = "JOGANDO";
+                IsPlayButtonEnabled = false;
+            });
+        }
+    }
+
+    private void OnGameSessionEnded(object? sender, SessionEndedEventArgs e)
+    {
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            if (SelectedInstance != null && SelectedInstance.Id == e.InstanceId)
+            {
+                IsGameRunning = false;
+                GameStatusText = "";
+                PlayButtonText = "JOGAR";
+                IsPlayButtonEnabled = !IsLoading;
+
+                // Refresh specific stats if needed, or rely on ObservableProperty
+                // Force notify properties that depend on stats
+                OnPropertyChanged(nameof(LastPlayedText));
+                OnPropertyChanged(nameof(PlayTimeText));
+            }
+        });
     }
 
     public HomeViewModel()
@@ -191,6 +254,7 @@ public partial class HomeViewModel : ViewModelBase
         _navigationService = null!;
         _settingsService = null!;
         _statusService = null!;
+        _gameSessionService = null!;
     }
 
     private async void Initialize()
@@ -375,16 +439,29 @@ public partial class HomeViewModel : ViewModelBase
             var playerName = settings.PlayerName ?? "MagoPlayer";
             var maxRam = settings.MaxRamMb; // Default 4096 if not set
 
-            await _instanceService.LaunchInstanceAsync(SelectedInstance, playerName, maxRam, outputAction);
-            _statusService.StatusMessage = "Jogo iniciado com sucesso!";
+            var process = await _instanceService.LaunchInstanceAsync(SelectedInstance, playerName, maxRam, outputAction);
+
+            if (process != null)
+            {
+                _statusService.StatusMessage = "Jogo iniciado com sucesso!";
+                _gameSessionService.StartSession(SelectedInstance, process);
+            }
         }
         catch (Exception ex)
         {
             _statusService.StatusMessage = $"Erro: {ex.Message}";
             outputAction($"[FATAL ERROR] {ex.Message}");
         }
-
-        IsLoading = false;
+        finally
+        {
+            IsLoading = false;
+            // Re-evaluate button state
+            if (SelectedInstance != null)
+            {
+                bool running = _gameSessionService.IsGameRunning(SelectedInstance.Id);
+                IsPlayButtonEnabled = !running;
+            }
+        }
     }
 
     [RelayCommand]

@@ -1,4 +1,6 @@
 using MagoLauncher.Domain.Entities;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace MagoLauncher.Application.Services;
 
@@ -12,5 +14,5 @@ public interface IMinecraftInstanceService
     Task CreateInstanceAsync(MinecraftInstance instance);
     Task UpdateInstanceAsync(MinecraftInstance instance);
     Task DeleteInstanceAsync(MinecraftInstance instance);
-    Task LaunchInstanceAsync(MinecraftInstance instance, string playerName, int maxRamMb, Action<string>? outputCallback = null);
+    Task<Process?> LaunchInstanceAsync(MinecraftInstance instance, string playerName, int maxRamMb, Action<string>? outputCallback = null);
 }

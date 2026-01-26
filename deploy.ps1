@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-$Version = "1.0.2"
+$Version = "1.0.4"
 $ApiUrl = "https://mago-launcher-server.vercel.app"
 
 function Build-App {

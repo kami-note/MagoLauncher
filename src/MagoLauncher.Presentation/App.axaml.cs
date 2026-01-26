@@ -30,8 +30,17 @@ public partial class App : Avalonia.Application
             var instanceService = new MagoLauncher.Infrastructure.Services.MinecraftInstanceService();
             var settingsService = new MagoLauncher.Infrastructure.Services.SettingsService();
             var notificationService = new MagoLauncher.Presentation.Services.NotificationService();
+            var logService = new MagoLauncher.Presentation.Services.LogService();
 
-            var updateService = new MagoLauncher.Presentation.Services.UpdateService();
+            var updateService = new MagoLauncher.Presentation.Services.UpdateService(logService);
+
+            // Show developer log window
+            var logWindow = new MagoLauncher.Presentation.Views.LogWindow
+            {
+                DataContext = new MagoLauncher.Presentation.ViewModels.LogViewModel(logService)
+            };
+            logWindow.Show();
+
             // Check for updates in background
             _ = System.Threading.Tasks.Task.Run(async () => await updateService.CheckAndApplyUpdatesAsync());
 

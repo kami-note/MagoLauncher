@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-$Version = "1.0.4"
+$Version = "1.0.5"
 $ApiUrl = "https://mago-launcher-server.vercel.app"
 
 function Build-App {
@@ -27,7 +27,9 @@ function Upload-Files {
     $Files = @(
         "Releases/MagoLauncher-win-Setup.exe",
         "Releases/MagoLauncher-$Version-full.nupkg",
-        "Releases/RELEASES"
+        "Releases/RELEASES",
+        "Releases/releases.win.json",
+        "Releases/assets.win.json"
     )
 
     foreach ($File in $Files) {

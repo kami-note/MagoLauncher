@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MagoLauncher.Application.Services;
+using MagoLauncher.Presentation.Services;
 using System.Threading.Tasks;
 
 namespace MagoLauncher.Presentation.ViewModels;
@@ -30,13 +31,15 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly INotificationService _notificationService;
     private readonly IMinecraftInstanceService _instanceService;
     private readonly ISettingsService _settingsService;
+    private readonly IDebugConsoleService _debugConsoleService;
 
-    public MainWindowViewModel(IMinecraftInstanceService instanceService, IModpackService modpackService, INotificationService notificationService, ISettingsService settingsService)
+    public MainWindowViewModel(IMinecraftInstanceService instanceService, IModpackService modpackService, INotificationService notificationService, ISettingsService settingsService, IDebugConsoleService debugConsoleService)
     {
         _notificationService = notificationService;
         _modpackService = modpackService;
         _instanceService = instanceService;
         _settingsService = settingsService;
+        _debugConsoleService = debugConsoleService;
 
         _settingsPage = new SettingsViewModel();
         _storePage = new StoreViewModel(this, _notificationService, _instanceService);
@@ -48,6 +51,12 @@ public partial class MainWindowViewModel : ViewModelBase
         _activeView = "Home"; // Initialize active view
 
         InitializeSettings();
+    }
+
+    [RelayCommand]
+    public void ToggleConsole()
+    {
+        _debugConsoleService.Toggle();
     }
 
     private async void InitializeSettings()
@@ -75,6 +84,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _notificationService = null!;
         _instanceService = null!;
         _settingsService = null!;
+        _debugConsoleService = null!;
         _settingsPage = new SettingsViewModel();
         _storePage = new StoreViewModel();
         _homePage = new HomeViewModel(null!, _settingsPage, this, null!);

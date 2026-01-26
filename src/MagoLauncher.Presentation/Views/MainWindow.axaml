@@ -42,6 +42,10 @@
         <converters:ActiveViewToForegroundConverter x:Key="ActiveViewToForegroundConverter"/>
         <converters:ActiveViewToUnderlineConverter x:Key="ActiveViewToUnderlineConverter"/>
     </Window.Resources>
+
+    <Window.KeyBindings>
+        <KeyBinding Gesture="F12" Command="{Binding ToggleConsoleCommand}" />
+    </Window.KeyBindings>
         
     <Grid RowDefinitions="40, *">
         <!-- Main Application Header (Steam Top Bar) -->
@@ -59,25 +63,11 @@
                                    Foreground="{Binding ActiveView, Converter={StaticResource ActiveViewToForegroundConverter}, ConverterParameter=Home}"
                                    TextDecorations="{Binding ActiveView, Converter={StaticResource ActiveViewToUnderlineConverter}, ConverterParameter=Home}"/>
                     </Button>
-                    <Button Classes="TopBarNavButton"> <!-- Community -->
-                        <TextBlock Text="COMUNIDADE" 
-                                   Foreground="{Binding ActiveView, Converter={StaticResource ActiveViewToForegroundConverter}, ConverterParameter=Community}"
-                                   TextDecorations="{Binding ActiveView, Converter={StaticResource ActiveViewToUnderlineConverter}, ConverterParameter=Community}"/>
-                    </Button>
-                    <Button Classes="TopBarNavButton"> <!-- User -->
-                        <TextBlock Text="USUÁRIO" 
-                                   Foreground="{Binding ActiveView, Converter={StaticResource ActiveViewToForegroundConverter}, ConverterParameter=User}"
-                                   TextDecorations="{Binding ActiveView, Converter={StaticResource ActiveViewToUnderlineConverter}, ConverterParameter=User}"/>
-                    </Button>
+
                 </StackPanel>
 
                  <!-- User Profile / Window Controls Area -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center" Margin="0,0,140,0">
-                    <!-- Notifications -->
-                    <material:MaterialIcon Kind="Bell" Width="18" Height="18" Foreground="{StaticResource SteamGreen}"/>
-                    
-                    <!-- Profile Name -->
-                    <!-- Profile Name Input -->
                     <TextBox Text="{Binding PlayerName, Mode=TwoWay}" 
                              VerticalAlignment="Center" 
                              VerticalContentAlignment="Center"
@@ -91,11 +81,8 @@
                              MinHeight="0"
                              SelectionBrush="{StaticResource SteamBlueDim}"
                              FontSize="14"/>
-                               
-                    <Border Width="32" Height="32" CornerRadius="2" Background="#24282f">
-                        <material:MaterialIcon Kind="Account" Width="20" Height="20" Foreground="#8b929a" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
                 </StackPanel>
+
             </Grid>
         </Border>
 

@@ -35,18 +35,14 @@ public partial class App : Avalonia.Application
             var updateService = new MagoLauncher.Presentation.Services.UpdateService(logService);
 
             // Show developer log window
-            var logWindow = new MagoLauncher.Presentation.Views.LogWindow
-            {
-                DataContext = new MagoLauncher.Presentation.ViewModels.LogViewModel(logService)
-            };
-            logWindow.Show();
+            var debugConsoleService = new MagoLauncher.Presentation.Services.DebugConsoleService(logService);
 
             // Check for updates in background
             _ = System.Threading.Tasks.Task.Run(async () => await updateService.CheckAndApplyUpdatesAsync());
 
             var mainWindow = new MainWindow
             {
-                DataContext = new MainWindowViewModel(instanceService, modpackService, notificationService, settingsService),
+                DataContext = new MainWindowViewModel(instanceService, modpackService, notificationService, settingsService, debugConsoleService),
             };
 
             notificationService.SetHost(mainWindow);

@@ -268,8 +268,18 @@ public partial class HomeViewModel : ViewModelBase
             catch (Exception ex)
             {
                 // Fallback to local data if API fails, but notify
-                // Or just show error
-                System.Console.WriteLine($"[HomeViewModel] Failed to fetch update info: {ex.Message}");
+                System.Console.WriteLine($"[HomeViewModel] Failed to fetch update info: {ex}");
+                _mainWindowViewModel.StatusMessage = $"Aviso: Falha ao obter dados remotos. Usando cache local.";
+
+                // Show notification if possible (Need to expose NotificationService from MainWindow or inject it)
+                // HomeViewModel doesn't have direct access to NotificationService locally in field, 
+                // but it is passed in constructor... wait, check constructor.
+                // It is NOT stored in a field. It is passed to StoreViewModel via MainWindow.
+                // We should probably add INotificationService to HomeViewModel.
+
+                // For now, write to console and maybe show in StatusMessage is enough?
+                // Or better, let's just proceed to details page as it does now.
+                // But user says "does not trigger any action". Check if it proceeds.
 
                 var modpack = new Modpack
                 {

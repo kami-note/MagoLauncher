@@ -7,11 +7,18 @@ using System.Linq;
 using Avalonia.Markup.Xaml;
 using MagoLauncher.Presentation.ViewModels;
 using MagoLauncher.Presentation.Views;
+using Microsoft.Extensions.DependencyInjection;
+using MagoLauncher.Application.Services;
+using MagoLauncher.Infrastructure.Services;
+using MagoLauncher.Presentation.Services;
+using MagoLauncher.Presentation.Services.Navigation;
 
 namespace MagoLauncher.Presentation;
 
 public partial class App : Avalonia.Application
 {
+    public IServiceProvider? ServiceProvider { get; private set; }
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -21,45 +28,69 @@ public partial class App : Avalonia.Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
-            // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
+            // Avoid duplicate validations
             DisableAvaloniaDataAnnotationValidation();
 
-            var httpClient = new System.Net.Http.HttpClient();
-            var modpackService = new MagoLauncher.Infrastructure.Services.ModpackService(httpClient);
-            var instanceService = new MagoLauncher.Infrastructure.Services.MinecraftInstanceService();
-            var settingsService = new MagoLauncher.Infrastructure.Services.SettingsService();
-            var notificationService = new MagoLauncher.Presentation.Services.NotificationService();
-            var logService = new MagoLauncher.Presentation.Services.LogService();
+            // Setup DI
+            var services = ConfigureServices();
+            ServiceProvider = services.BuildServiceProvider();
 
-            var updateService = new MagoLauncher.Presentation.Services.UpdateService(logService);
+            // Resolve Main Window and ViewModel
+            var mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
+            var viewModel = ServiceProvider.GetRequiredService<MainWindowViewModel>();
+            mainWindow.DataContext = viewModel;
 
-            // Show developer log window
-            var debugConsoleService = new MagoLauncher.Presentation.Services.DebugConsoleService(logService);
+            // Set Notification Host
+            var notificationService = ServiceProvider.GetRequiredService<INotificationService>();
+            if (notificationService is NotificationService ns)
+            {
+                ns.SetHost(mainWindow);
+            }
 
-            // Check for updates in background
+            // Start Update Service
+            var updateService = ServiceProvider.GetRequiredService<UpdateService>();
             _ = System.Threading.Tasks.Task.Run(async () => await updateService.CheckAndApplyUpdatesAsync());
 
-            var mainWindow = new MainWindow
-            {
-                DataContext = new MainWindowViewModel(instanceService, modpackService, notificationService, settingsService, debugConsoleService),
-            };
-
-            notificationService.SetHost(mainWindow);
             desktop.MainWindow = mainWindow;
         }
 
         base.OnFrameworkInitializationCompleted();
     }
 
-    private static void LogTrace(string message)
+    private IServiceCollection ConfigureServices()
     {
-        try
-        {
-            var path = @"C:\Users\yurin\MagoLaucher\startup_trace.txt";
-            System.IO.File.AppendAllText(path, $"[{DateTime.Now}] {message}\n");
-        }
-        catch { }
+        var services = new ServiceCollection();
+
+        // Core Services
+        services.AddSingleton<System.Net.Http.HttpClient>();
+
+        // Application/Infrastructure Services
+        services.AddSingleton<IModpackService, ModpackService>();
+        services.AddSingleton<IMinecraftInstanceService, MinecraftInstanceService>();
+        services.AddSingleton<ISettingsService, SettingsService>();
+
+        // Presentation Services
+        services.AddSingleton<INotificationService, NotificationService>();
+        services.AddSingleton<LogService>();
+        services.AddSingleton<IDebugConsoleService, DebugConsoleService>();
+        services.AddSingleton<UpdateService>();
+        services.AddSingleton<IStatusService, StatusService>();
+
+        // Navigation
+        services.AddSingleton<INavigationService, NavigationService>();
+
+        // Views
+        services.AddSingleton<MainWindow>();
+
+        // ViewModels
+        services.AddSingleton<MainWindowViewModel>();
+
+        // Child ViewModels (Singletons to preserve state)
+        services.AddSingleton<HomeViewModel>();
+        services.AddSingleton<StoreViewModel>();
+        services.AddSingleton<SettingsViewModel>();
+
+        return services;
     }
 
     private void DisableAvaloniaDataAnnotationValidation()

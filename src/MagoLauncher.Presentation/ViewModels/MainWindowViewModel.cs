@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MagoLauncher.Application.Services;
 using MagoLauncher.Presentation.Services;
+using MagoLauncher.Presentation.Services.Navigation;
 using System.Threading.Tasks;
 
 namespace MagoLauncher.Presentation.ViewModels;
@@ -15,7 +16,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private string _statusMessage = "Pronto para jogar";
 
     [ObservableProperty]
-    private ViewModelBase _currentPage;
+    private ViewModelBase _currentPage = null!;
 
     [ObservableProperty]
     private string _playerName = "MagoPlayer";
@@ -23,34 +24,51 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private string _activeView = "Home";
 
-    private readonly HomeViewModel _homePage;
-    private readonly SettingsViewModel _settingsPage;
-    private readonly StoreViewModel _storePage;
-
-    private readonly IModpackService _modpackService;
-    private readonly INotificationService _notificationService;
-    private readonly IMinecraftInstanceService _instanceService;
+    private readonly INavigationService _navigationService;
     private readonly ISettingsService _settingsService;
     private readonly IDebugConsoleService _debugConsoleService;
 
-    public MainWindowViewModel(IMinecraftInstanceService instanceService, IModpackService modpackService, INotificationService notificationService, ISettingsService settingsService, IDebugConsoleService debugConsoleService)
+    // Design-time constructor
+    public MainWindowViewModel()
     {
-        _notificationService = notificationService;
-        _modpackService = modpackService;
-        _instanceService = instanceService;
+        _settingsService = null!;
+        _debugConsoleService = null!;
+        _navigationService = null!;
+        _currentPage = null!;
+    }
+
+    public MainWindowViewModel(
+        ISettingsService settingsService,
+        IDebugConsoleService debugConsoleService,
+        INavigationService navigationService,
+        IStatusService statusService)
+    {
         _settingsService = settingsService;
         _debugConsoleService = debugConsoleService;
+        _navigationService = navigationService;
 
-        _settingsPage = new SettingsViewModel();
-        _storePage = new StoreViewModel(this, _notificationService, _instanceService);
-        // Pass dependencies to HomeViewModel
-        _homePage = new HomeViewModel(instanceService, _settingsPage, this, _modpackService);
+        _navigationService.CurrentViewModelChanged += OnCurrentViewModelChanged;
 
-
-        _currentPage = _homePage;
-        _activeView = "Home"; // Initialize active view
+        // Subscribe to status updates
+        statusService.StatusMessageChanged += (msg) => StatusMessage = msg;
 
         InitializeSettings();
+
+        // Initial navigation
+        // We defer this slightly or just call it. 
+        // Note: HomeViewModel creation will now be handled by DI when we navigate.
+        _navigationService.NavigateTo<HomeViewModel>();
+    }
+
+    private void OnCurrentViewModelChanged(ViewModelBase viewModel)
+    {
+        CurrentPage = viewModel;
+
+        // Update ActiveView for sidebar highlighting based on VM type
+        if (viewModel is HomeViewModel) ActiveView = "Home";
+        else if (viewModel is StoreViewModel || viewModel is ModpackDetailViewModel) ActiveView = "Store";
+        else if (viewModel is SettingsViewModel) ActiveView = "Settings";
+        else ActiveView = "";
     }
 
     [RelayCommand]
@@ -77,46 +95,21 @@ public partial class MainWindowViewModel : ViewModelBase
         await _settingsService.SaveSettingsAsync(settings);
     }
 
-    public MainWindowViewModel()
-    {
-        // Constructor for design-time preview
-        _modpackService = null!;
-        _notificationService = null!;
-        _instanceService = null!;
-        _settingsService = null!;
-        _debugConsoleService = null!;
-        _settingsPage = new SettingsViewModel();
-        _storePage = new StoreViewModel();
-        _homePage = new HomeViewModel(null!, _settingsPage, this, null!);
-        _currentPage = _homePage;
-        _activeView = "Home"; // Initialize active view
-    }
-
     [RelayCommand]
-    public async Task GoToHome()
+    public void GoToHome()
     {
-        CurrentPage = _homePage;
-        ActiveView = "Home";
-        await _homePage.ReloadInstances();
+        _navigationService.NavigateTo<HomeViewModel>();
     }
 
     [RelayCommand]
     public void GoToSettings()
     {
-        CurrentPage = _settingsPage;
-        ActiveView = "Settings";
+        _navigationService.NavigateTo<SettingsViewModel>();
     }
 
     [RelayCommand]
     public void GoToStore()
     {
-        CurrentPage = _storePage;
-        ActiveView = "Store";
-    }
-
-    public void GoToModpackDetails(Models.Modpack modpack)
-    {
-        CurrentPage = new ModpackDetailViewModel(this, modpack, _modpackService, _notificationService, _instanceService);
-        ActiveView = "Store"; // Keep "Store" active in sidebar
+        _navigationService.NavigateTo<StoreViewModel>();
     }
 }

@@ -12,6 +12,8 @@ using CommunityToolkit.Mvvm.Input;
 using System.Net.Http;
 using Avalonia.Media.Imaging;
 using System.IO;
+using MagoLauncher.Presentation.Services.Navigation;
+using MagoLauncher.Presentation.Services;
 
 namespace MagoLauncher.Presentation.ViewModels;
 
@@ -19,9 +21,10 @@ public partial class HomeViewModel : ViewModelBase
 {
     private readonly HttpClient _httpClient = new();
     private readonly IMinecraftInstanceService _instanceService;
-    private readonly SettingsViewModel _settingsViewModel;
-    private readonly MainWindowViewModel _mainWindowViewModel;
-
+    private readonly IModpackService _modpackService;
+    private readonly INavigationService _navigationService;
+    private readonly ISettingsService _settingsService;
+    private readonly IStatusService _statusService;
 
     [ObservableProperty]
     private bool _isLoading;
@@ -165,14 +168,18 @@ public partial class HomeViewModel : ViewModelBase
         }
     }
 
-    private readonly IModpackService _modpackService;
-
-    public HomeViewModel(IMinecraftInstanceService instanceService, SettingsViewModel settingsViewModel, MainWindowViewModel mainWindowViewModel, IModpackService modpackService)
+    public HomeViewModel(
+        IMinecraftInstanceService instanceService,
+        IModpackService modpackService,
+        INavigationService navigationService,
+        ISettingsService settingsService,
+        IStatusService statusService)
     {
         _instanceService = instanceService;
-        _settingsViewModel = settingsViewModel;
-        _mainWindowViewModel = mainWindowViewModel;
         _modpackService = modpackService;
+        _navigationService = navigationService;
+        _settingsService = settingsService;
+        _statusService = statusService;
         Initialize();
     }
 
@@ -180,9 +187,10 @@ public partial class HomeViewModel : ViewModelBase
     {
         // Constructor for design-time preview
         _instanceService = null!;
-        _settingsViewModel = new SettingsViewModel();
-        _mainWindowViewModel = new MainWindowViewModel();
-        _modpackService = null!; // Mock not needed for simple preview unless we bind deeply
+        _modpackService = null!;
+        _navigationService = null!;
+        _settingsService = null!;
+        _statusService = null!;
     }
 
     private async void Initialize()
@@ -205,12 +213,6 @@ public partial class HomeViewModel : ViewModelBase
                     var remote = await _modpackService.GetModpackAsync(instance.Metadata!.Slug);
                     if (remote != null && remote.Version != instance.Metadata.Version)
                     {
-                        // Update on UI Thread if collection binding requires it, 
-                        // though boolean property change on item usually fine if INPC implemented on Item or collection.
-                        // MinecraftInstance is not ObservableObject in the entity definition viewed, but usually ViewModels wrap them.
-                        // Here they are exposed directly.
-                        // We set the property. If UI doesn't update, we might need manual trigger.
-                        // But let's assume direct set works for now.
                         instance.IsUpdateAvailable = true;
                     }
                 }
@@ -231,11 +233,6 @@ public partial class HomeViewModel : ViewModelBase
     public async Task UpdateInstance()
     {
         if (SelectedInstance == null) return;
-
-        // Navigate to Store/ModpackDetail to perform the update
-        // Or perform update right here. The prompt says "mandatory option... in library". 
-        // Reusing ModpackDetailViewModel logic is best.
-        // Let's navigate to the ModpackDetailView for this instance.
 
         if (SelectedInstance.Metadata != null)
         {
@@ -263,23 +260,13 @@ public partial class HomeViewModel : ViewModelBase
                 modpack.IsInstalled = true;
                 modpack.InstanceId = SelectedInstance.Id;
 
-                _mainWindowViewModel.GoToModpackDetails(modpack);
+                _navigationService.NavigateTo<ModpackDetailViewModel>(modpack);
             }
             catch (Exception ex)
             {
                 // Fallback to local data if API fails, but notify
                 System.Console.WriteLine($"[HomeViewModel] Failed to fetch update info: {ex}");
-                _mainWindowViewModel.StatusMessage = $"Aviso: Falha ao obter dados remotos. Usando cache local.";
-
-                // Show notification if possible (Need to expose NotificationService from MainWindow or inject it)
-                // HomeViewModel doesn't have direct access to NotificationService locally in field, 
-                // but it is passed in constructor... wait, check constructor.
-                // It is NOT stored in a field. It is passed to StoreViewModel via MainWindow.
-                // We should probably add INotificationService to HomeViewModel.
-
-                // For now, write to console and maybe show in StatusMessage is enough?
-                // Or better, let's just proceed to details page as it does now.
-                // But user says "does not trigger any action". Check if it proceeds.
+                _statusService.StatusMessage = $"Aviso: Falha ao obter dados remotos. Usando cache local.";
 
                 var modpack = new Modpack
                 {
@@ -291,7 +278,7 @@ public partial class HomeViewModel : ViewModelBase
                 modpack.IsInstalled = true;
                 modpack.InstanceId = SelectedInstance.Id;
 
-                _mainWindowViewModel.GoToModpackDetails(modpack);
+                _navigationService.NavigateTo<ModpackDetailViewModel>(modpack);
             }
             finally
             {
@@ -369,7 +356,7 @@ public partial class HomeViewModel : ViewModelBase
 
         IsLoading = true;
         GameOutput = ""; // Clear previous log
-        _mainWindowViewModel.StatusMessage = $"Iniciando {SelectedInstance.Name}...";
+        _statusService.StatusMessage = $"Iniciando {SelectedInstance.Name}...";
 
         Action<string> outputAction = (line) =>
         {
@@ -384,12 +371,16 @@ public partial class HomeViewModel : ViewModelBase
         // Launch functionality
         try
         {
-            await _instanceService.LaunchInstanceAsync(SelectedInstance, _mainWindowViewModel.PlayerName, _settingsViewModel.MaxRamMb, outputAction);
-            _mainWindowViewModel.StatusMessage = "Jogo iniciado com sucesso!";
+            var settings = await _settingsService.LoadSettingsAsync();
+            var playerName = settings.PlayerName ?? "MagoPlayer";
+            var maxRam = settings.MaxRamMb; // Default 4096 if not set
+
+            await _instanceService.LaunchInstanceAsync(SelectedInstance, playerName, maxRam, outputAction);
+            _statusService.StatusMessage = "Jogo iniciado com sucesso!";
         }
         catch (Exception ex)
         {
-            _mainWindowViewModel.StatusMessage = $"Erro: {ex.Message}";
+            _statusService.StatusMessage = $"Erro: {ex.Message}";
             outputAction($"[FATAL ERROR] {ex.Message}");
         }
 
@@ -399,6 +390,7 @@ public partial class HomeViewModel : ViewModelBase
     [RelayCommand]
     public void AddInstance()
     {
-        _mainWindowViewModel.StatusMessage = "Criar nova instância...";
+        _statusService.StatusMessage = "Criar nova instância...";
+        // Navigate or Logic
     }
 }

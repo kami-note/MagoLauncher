@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MagoLauncher.Presentation.Services.Navigation;
 using MagoLauncher.Presentation.Models;
 using MagoLauncher.Application.Services;
 using System.Collections.ObjectModel;
@@ -27,14 +28,17 @@ namespace MagoLauncher.Presentation.ViewModels
 
         private readonly HttpClient _httpClient;
 
-        private readonly MainWindowViewModel _mainWindowViewModel;
+        private readonly INavigationService _navigationService;
         private readonly INotificationService _notificationService;
         private readonly IMinecraftInstanceService _instanceService;
 
-        public StoreViewModel(MainWindowViewModel mainWindowViewModel, INotificationService notificationService, IMinecraftInstanceService instanceService)
+        public StoreViewModel(
+            INavigationService navigationService,
+            INotificationService notificationService,
+            IMinecraftInstanceService instanceService)
         {
             _notificationService = notificationService;
-            _mainWindowViewModel = mainWindowViewModel;
+            _navigationService = navigationService;
             _instanceService = instanceService;
             _httpClient = new HttpClient();
             _modpacks = new ObservableCollection<Modpack>();
@@ -44,7 +48,7 @@ namespace MagoLauncher.Presentation.ViewModels
         public StoreViewModel()
         {
             // Design-time constructor
-            _mainWindowViewModel = null!;
+            _navigationService = null!;
             _notificationService = null!;
             _instanceService = null!;
             _httpClient = new HttpClient();
@@ -138,7 +142,7 @@ namespace MagoLauncher.Presentation.ViewModels
         public void OpenModpackDetails(Modpack modpack)
         {
             if (modpack == null) return;
-            _mainWindowViewModel.GoToModpackDetails(modpack);
+            _navigationService.NavigateTo<ModpackDetailViewModel>(modpack);
         }
     }
 }

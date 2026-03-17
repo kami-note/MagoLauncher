@@ -66,7 +66,13 @@
                   Background="#1d2027"
                   PlaceholderText="Tipo de versão"
                   BorderThickness="0"
-                  Foreground="{StaticResource SteamTextSecondary}"/>
+                  Foreground="{StaticResource SteamTextSecondary}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource VersionKindToDisplayConverter}}"/>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
 
         <!-- Search / Filter -->
         <Border Grid.Row="3" Margin="12,0,12,8" Background="#1d2027" CornerRadius="2">

@@ -1,3 +1,4 @@
+using MagoLauncher.Domain;
 using MagoLauncher.Domain.Entities;
 using MagoLauncher.Domain.Enums;
 using Xunit;
@@ -5,7 +6,7 @@ using Xunit;
 namespace MagoLauncher.Tests;
 
 /// <summary>
-/// Unit tests for VersionKind enum and library filter behavior (pure logic).
+/// Unit tests for VersionKind enum and VersionKindFilter (single source of truth in Domain).
 /// </summary>
 public class VersionKindFilterTests
 {
@@ -24,19 +25,19 @@ public class VersionKindFilterTests
     }
 
     [Fact]
-    public void FilterByVersionKind_WhenAll_ReturnsAllInstances()
+    public void Apply_WhenAll_ReturnsAllInstances()
     {
         var instances = new[]
         {
             CreateInstance(VersionKind.Stable),
             CreateInstance(VersionKind.Modpack),
         };
-        var filtered = FilterByVersionKind(instances, VersionKind.All);
+        var filtered = VersionKindFilter.Apply(instances, VersionKind.All);
         Assert.Equal(2, filtered.Count());
     }
 
     [Fact]
-    public void FilterByVersionKind_WhenSpecificKind_ReturnsOnlyMatching()
+    public void Apply_WhenSpecificKind_ReturnsOnlyMatching()
     {
         var instances = new[]
         {
@@ -44,7 +45,7 @@ public class VersionKindFilterTests
             CreateInstance(VersionKind.Modpack),
             CreateInstance(VersionKind.Stable),
         };
-        var filtered = FilterByVersionKind(instances, VersionKind.Stable).ToList();
+        var filtered = VersionKindFilter.Apply(instances, VersionKind.Stable).ToList();
         Assert.Equal(2, filtered.Count);
         Assert.All(filtered, i => Assert.Equal(VersionKind.Stable, i.VersionKind));
     }
@@ -57,13 +58,5 @@ public class VersionKindFilterTests
             MinecraftVersion = "1.0",
             VersionKind = kind,
         };
-    }
-
-    private static IEnumerable<MinecraftInstance> FilterByVersionKind(
-        IEnumerable<MinecraftInstance> instances,
-        VersionKind filter)
-    {
-        if (filter == VersionKind.All) return instances;
-        return instances.Where(i => i.VersionKind == filter);
     }
 }

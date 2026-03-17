@@ -3,6 +3,7 @@ using MagoLauncher.Presentation.Models;
 using MagoLauncher.Domain.Entities;
 using System.Collections.ObjectModel;
 using MagoLauncher.Application.Services;
+using MagoLauncher.Domain;
 using MagoLauncher.Domain.Interfaces;
 using MagoLauncher.Domain.Enums;
 using System.Threading.Tasks;
@@ -411,10 +412,7 @@ public partial class HomeViewModel : ViewModelBase
         }
 
         // 3. Filter by Version Kind (Stable, Snapshot, Especial, Beta, Alpha, Modpack)
-        if (VersionKindFilter != VersionKind.All)
-        {
-            filtered = filtered.Where(i => i.VersionKind == VersionKindFilter);
-        }
+        filtered = Domain.VersionKindFilter.Apply(filtered, VersionKindFilter);
 
         foreach (var instance in filtered)
         {

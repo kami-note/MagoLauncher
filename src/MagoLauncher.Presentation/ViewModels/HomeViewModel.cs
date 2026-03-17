@@ -3,7 +3,9 @@ using MagoLauncher.Presentation.Models;
 using MagoLauncher.Domain.Entities;
 using System.Collections.ObjectModel;
 using MagoLauncher.Application.Services;
+using MagoLauncher.Domain;
 using MagoLauncher.Domain.Interfaces;
+using MagoLauncher.Domain.Enums;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
@@ -66,7 +68,17 @@ public partial class HomeViewModel : ViewModelBase
     [ObservableProperty]
     private FilterType _filterOption = FilterType.All;
 
+    [ObservableProperty]
+    private VersionKind _versionKindFilter = VersionKind.All;
+
     partial void OnFilterOptionChanged(FilterType value) => FilterInstances();
+    partial void OnVersionKindFilterChanged(VersionKind value) => FilterInstances();
+
+    /// <summary>
+    /// Options for the version-type dropdown: All, Stable, Snapshot, Especial, Beta, Alpha, Modpack.
+    /// </summary>
+    public IReadOnlyList<VersionKind> VersionKindFilterOptions { get; } =
+        (VersionKind[])Enum.GetValues(typeof(VersionKind));
 
     partial void OnSearchTextChanged(string value)
     {
@@ -385,7 +397,7 @@ public partial class HomeViewModel : ViewModelBase
             filtered = filtered.Where(i => i.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
         }
 
-        // 2. Filter by Option
+        // 2. Filter by Option (Installed / NotInstalled / All)
         switch (FilterOption)
         {
             case FilterType.Installed:
@@ -398,6 +410,9 @@ public partial class HomeViewModel : ViewModelBase
             default:
                 break;
         }
+
+        // 3. Filter by Version Kind (Stable, Snapshot, Especial, Beta, Alpha, Modpack)
+        filtered = Domain.VersionKindFilter.Apply(filtered, VersionKindFilter);
 
         foreach (var instance in filtered)
         {

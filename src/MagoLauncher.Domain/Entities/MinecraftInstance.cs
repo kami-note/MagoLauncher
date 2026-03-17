@@ -1,3 +1,5 @@
+using MagoLauncher.Domain.Enums;
+
 namespace MagoLauncher.Domain.Entities;
 
 /// <summary>
@@ -9,7 +11,7 @@ public class MinecraftInstance
     public required string Name { get; set; }
     public required string MinecraftVersion { get; set; }
     public string? ModLoaderVersion { get; set; }
-    public Domain.Enums.ModLoaderType ModLoaderType { get; set; } = Domain.Enums.ModLoaderType.Vanilla;
+    public ModLoaderType ModLoaderType { get; set; } = ModLoaderType.Vanilla;
     public string? IconPath { get; set; }
     public string? InstancePath { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -19,4 +21,9 @@ public class MinecraftInstance
     public bool IsUpdateAvailable { get; set; }
     public List<Mod> Mods { get; set; } = [];
     public ModpackMetadata? Metadata { get; set; }
+
+    /// <summary>
+    /// Version type for library filtering (Stable, Snapshot, Beta, Alpha, Modpack, Especial).
+    /// </summary>
+    public VersionKind VersionKind { get; set; } = VersionKind.Stable;
 }

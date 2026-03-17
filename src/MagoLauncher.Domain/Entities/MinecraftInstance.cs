@@ -19,4 +19,8 @@ public class MinecraftInstance
     public bool IsUpdateAvailable { get; set; }
     public List<Mod> Mods { get; set; } = [];
     public ModpackMetadata? Metadata { get; set; }
+    /// <summary>
+    /// Version type for library filtering (Stable, Snapshot, Beta, Alpha, Modpack, Especial).
+    /// </summary>
+    public Domain.Enums.VersionKind VersionKind { get; set; } = Domain.Enums.VersionKind.Stable;
 }

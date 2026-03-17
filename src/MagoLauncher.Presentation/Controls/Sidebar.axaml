@@ -32,7 +32,7 @@
          </Style>
     </UserControl.Styles>
 
-    <Grid RowDefinitions="Auto, Auto, Auto, *">
+    <Grid RowDefinitions="Auto, Auto, Auto, Auto, *">
         <!-- Header / Navigation -->
         <StackPanel Grid.Row="0" Background="{StaticResource SteamHeaderBackground}" Spacing="0">
              <TextBlock Text="MagoLauncher" 
@@ -43,7 +43,7 @@
                         LetterSpacing="1"/>
         </StackPanel>
 
-        <!-- Filter Dropdown -->
+        <!-- Filter Dropdown (Installed / NotInstalled / All) -->
         <ComboBox Grid.Row="1" 
                   SelectedIndex="{Binding FilterOption, Mode=TwoWay}"
                   HorizontalAlignment="Stretch"
@@ -57,8 +57,19 @@
              <ComboBoxItem>Não Instalados</ComboBoxItem>
         </ComboBox>
 
+        <!-- Version Type Filter (Stable, Snapshot, Especial, Beta, Alpha, Modpack) -->
+        <ComboBox Grid.Row="2"
+                  ItemsSource="{Binding VersionKindFilterOptions}"
+                  SelectedItem="{Binding VersionKindFilter, Mode=TwoWay}"
+                  HorizontalAlignment="Stretch"
+                  Margin="12,0,12,8"
+                  Background="#1d2027"
+                  PlaceholderText="Tipo de versão"
+                  BorderThickness="0"
+                  Foreground="{StaticResource SteamTextSecondary}"/>
+
         <!-- Search / Filter -->
-        <Border Grid.Row="2" Margin="12,0,12,8" Background="#1d2027" CornerRadius="2">
+        <Border Grid.Row="3" Margin="12,0,12,8" Background="#1d2027" CornerRadius="2">
             <Grid ColumnDefinitions="30, *">
                 <material:MaterialIcon Kind="Magnify" Width="16" Height="16" Foreground="{StaticResource SteamTextSecondary}" Margin="8,0,0,0"/>
                 <TextBox Text="{Binding SearchText, Mode=TwoWay}"
@@ -74,7 +85,7 @@
         </Border>
 
         <!-- Game List -->
-        <ListBox Grid.Row="3" 
+        <ListBox Grid.Row="4" 
                  ItemsSource="{Binding Instances}" 
                  SelectedItem="{Binding SelectedInstance}"
                  Background="Transparent"

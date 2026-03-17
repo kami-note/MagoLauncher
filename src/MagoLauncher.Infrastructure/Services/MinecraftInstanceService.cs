@@ -3,7 +3,9 @@ using CmlLib.Core;
 using CmlLib.Core.Auth;
 using CmlLib.Core.ProcessBuilder;
 using MagoLauncher.Application.Services;
+using MagoLauncher.Domain;
 using MagoLauncher.Domain.Entities;
+using MagoLauncher.Domain.Enums;
 
 namespace MagoLauncher.Infrastructure.Services;
 
@@ -26,22 +28,19 @@ public class MinecraftInstanceService : IMinecraftInstanceService
 
         foreach (var version in versions)
         {
-            // Filter basic types - CmlLib returns all version types (release, snapshot, old_beta, etc.)
-            // For now, we return everything, or we could filter by specific needs
-
             var versionPath = Path.Combine(_path.Versions, version.Name);
             bool isInstalled = Directory.Exists(versionPath);
 
             var instance = new MinecraftInstance
             {
                 Name = version.Name,
-                MinecraftVersion = version.Name, // Using the directory name/ID as version for now
+                MinecraftVersion = version.Name,
                 ModLoaderType = Domain.Enums.ModLoaderType.Vanilla,
                 InstancePath = versionPath,
                 IsInstalled = isInstalled,
+                VersionKind = VersionKindMapper.MapFromManifestType(version?.Type?.ToString()),
             };
 
-            // Try to load metadata
             var jsonPath = Path.Combine(versionPath, "mago_instance.json");
             if (File.Exists(jsonPath))
             {
@@ -52,8 +51,8 @@ public class MinecraftInstanceService : IMinecraftInstanceService
                     instance.Metadata = metadata;
                     if (metadata != null)
                     {
-                        // Use metadata name if available, often cleaner than folder name
                         instance.Name = metadata.Name;
+                        instance.VersionKind = VersionKind.Modpack;
                     }
                 }
                 catch (Exception ex)
